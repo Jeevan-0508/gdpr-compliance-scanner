@@ -220,7 +220,7 @@ async function pFile(file){
       const p=pCSV(txt,ext==='tsv'?'	':',');headers=p.h;rows=p.r;
     }else if(['xlsx','xls'].includes(ext)){
       const buf=await rBuf(file);setProg(30,'Parsing Excel...');await slp(60);
-      const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];
+      const wb=XLSX.read(buf,{type:'arraybuffer'});const ws=wb.Sheets[wb.SheetNames[0]];
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       if(data.length>0){headers=data[0].map(h=>String(h));rows=data.slice(1).map(r=>{const o={};headers.forEach((h,i)=>{o[h]=String(r[i]||'')});return o});}
     }else if(ext==='json'){
@@ -354,7 +354,8 @@ function exportReport(){
   a.download="GDPR_Report_"+fn.replace(/\.[^.]+$/,"")+"_"+new Date().toISOString().slice(0,10)+".html";a.click();showToast("Report exported!");
 }
 function pCSV(txt,d=','){
-  const lines=txt.split(/?
+  const lines=txt.split(/
+?
 /).filter(l=>l.trim());if(!lines.length)return{h:[],r:[]};
   const h=pLine(lines[0],d);
   const r=lines.slice(1).map(l=>{const v=pLine(l,d);const o={};h.forEach((hh,i)=>{o[hh]=v[i]||""});return o});

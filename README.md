@@ -1,3 +1,9 @@
+## Live Demo
+
+**[Launch GDPR Compliance Scanner](https://jeevan-0508.github.io/gdpr-compliance-scanner/gdpr_scanner.html)**
+
+> Or via htmlpreview: https://htmlpreview.github.io/?https://github.com/Jeevan-0508/gdpr-compliance-scanner/blob/main/gdpr_scanner.html
+
 # GDPR Compliance Scanner
 
 A client-side HTML tool to scan data files for GDPR compliance risks — no server, no upload, runs entirely in the browser.
