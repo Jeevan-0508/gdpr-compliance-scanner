@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GDPR Compliance Scanner</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--s2:#22263a;--bd:#2e3248;--ac:#6366f1;--ag:rgba(99,102,241,.25);--tx:#e8eaf0;--mu:#8b8fa8;--cr:#ef4444;--hi:#f97316;--me:#eab308;--lo:#22c55e;--in:#38bdf8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:Segoe UI,system-ui,sans-serif;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#0f1117,#1a1d27);border-bottom:1px solid var(--bd);padding:18px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.hdi{width:40px;height:40px;background:linear-gradient(135deg,var(--ac),#818cf8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 16px var(--ag)}
+.hdr h1{font-size:18px;font-weight:700}.hdr p{font-size:12px;color:var(--mu);margin-top:2px}
+.badge{margin-left:auto;background:var(--ag);border:1px solid var(--ac);color:var(--ac);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px}
+.ctr{max-width:1300px;margin:0 auto;padding:32px 24px}
+#us{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
+.dz{width:100%;max-width:620px;border:2px dashed var(--bd);border-radius:20px;padding:56px 40px;text-align:center;cursor:pointer;transition:all .3s;background:var(--surface)}
+.dz:hover,.dz.drag-over{border-color:var(--ac);background:var(--s2);box-shadow:0 0 40px var(--ag)}
+.di{font-size:56px;margin-bottom:20px;opacity:.7}.dz h2{font-size:20px;font-weight:600;margin-bottom:10px}
+.dz p{color:var(--mu);font-size:14px;line-height:1.6}
+.fts{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.ft{background:var(--s2);border:1px solid var(--bd);color:var(--mu);padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600}
+.bbtn{margin-top:24px;background:var(--ac);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}.bbtn:hover{opacity:.85}
+#fi{display:none}
+#ps{display:none;text-align:center;padding:80px 20px}
+.sa{width:80px;height:80px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbw{width:100%;max-width:480px;margin:20px auto;background:var(--s2);border-radius:8px;height:6px;overflow:hidden}
+.pb{height:100%;background:linear-gradient(90deg,var(--ac),#818cf8);border-radius:8px;transition:width .3s;width:0%}
+.pt{color:var(--mu);font-size:14px;margin-top:12px}
+#rs{display:none}
+.fb{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:18px 24px;display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.fbi{font-size:32px}.fbi2{flex:1}.fbn{font-weight:600;font-size:16px}.fbm{color:var(--mu);font-size:13px;margin-top:3px}
+.snb{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:border-color .2s}.snb:hover{border-color:var(--ac);color:var(--ac)}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.kc{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.kc::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.kc.tot::before{background:var(--ac)}.kc.cr::before{background:var(--cr)}.kc.hi::before{background:var(--hi)}.kc.me::before{background:var(--me)}.kc.lo::before{background:var(--lo)}
+.kl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:8px}
+.kv{font-size:36px;font-weight:800;line-height:1}.kc.tot .kv{color:var(--ac)}.kc.cr .kv{color:var(--cr)}.kc.hi .kv{color:var(--hi)}.kc.me .kv{color:var(--me)}.kc.lo .kv{color:var(--lo)}
+.ks{font-size:12px;color:var(--mu);margin-top:6px}
+.mg{display:grid;grid-template-columns:1fr 300px;gap:24px;margin-bottom:28px}@media(max-width:900px){.mg{grid-template-columns:1fr}}
+.cc,.sc{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:24px}
+.ct{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:20px}
+.chc{width:200px;height:200px;margin:0 auto}
+.cl{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.li{display:flex;align-items:center;gap:10px;font-size:13px}.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}.ll{color:var(--mu);flex:1}.lc{font-weight:600}
+.scr{width:120px;height:120px;border-radius:50%;margin:8px auto 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;border:6px solid}
+.sn{font-size:36px;font-weight:800;line-height:1}.sl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.rg{text-align:center;font-size:15px;font-weight:700;margin-bottom:16px}
+.gcks{display:flex;flex-direction:column;gap:8px}.gck{display:flex;align-items:center;gap:8px;font-size:12px}
+.ci{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.cp{background:rgba(34,197,94,.2);color:var(--lo)}.cf{background:rgba(239,68,68,.2);color:var(--cr)}.cw{background:rgba(234,179,8,.2);color:var(--me)}
+.fc{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:24px;margin-bottom:24px}
+.tc{display:flex;gap:12px;margin-bottom:18px;align-items:center;flex-wrap:wrap}
+.sb{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:8px 14px;border-radius:8px;font-size:13px;width:240px;outline:none}.sb:focus{border-color:var(--ac)}
+.fsl{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:8px 12px;border-radius:8px;font-size:13px;outline:none;cursor:pointer}
+.fnc{color:var(--mu);font-size:13px;margin-left:auto}
+.eb{background:linear-gradient(135deg,var(--ac),#818cf8);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s}.eb:hover{opacity:.85}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 14px;background:var(--s2);color:var(--mu);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover{color:var(--tx)}thead th.sorted{color:var(--ac)}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .15s}tbody tr:hover{background:var(--s2)}
+tbody td{padding:12px 14px;vertical-align:middle}
+.rb{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.CRITICAL{background:rgba(239,68,68,.15);color:var(--cr);border:1px solid rgba(239,68,68,.3)}
+.HIGH{background:rgba(249,115,22,.15);color:var(--hi);border:1px solid rgba(249,115,22,.3)}
+.MEDIUM{background:rgba(234,179,8,.15);color:var(--me);border:1px solid rgba(234,179,8,.3)}
+.LOW{background:rgba(34,197,94,.15);color:var(--lo);border:1px solid rgba(34,197,94,.3)}
+.at{background:var(--ag);color:var(--ac);border:1px solid rgba(99,102,241,.3);padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600}
+.sv{font-family:Cascadia Code,Consolas,monospace;font-size:11px;background:var(--s2);padding:2px 8px;border-radius:4px;color:var(--in);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.rc{color:var(--mu);font-size:12px;max-width:240px}
+.es{text-align:center;padding:60px 20px;color:var(--mu)}.ei{font-size:48px;margin-bottom:16px}
+.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:32px;text-align:center;margin-bottom:24px}
+.oki{font-size:48px;margin-bottom:12px}.ok h3{color:var(--lo);font-size:18px;margin-bottom:8px}.ok p{color:var(--mu);font-size:14px}
+.pgn{display:flex;gap:6px;justify-content:center;margin-top:16px;align-items:center}
+.pb2{background:var(--s2);border:1px solid var(--bd);color:var(--mu);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pb2:hover{border-color:var(--ac);color:var(--ac)}.pb2.active{background:var(--ac);border-color:var(--ac);color:#fff}
+.piw{color:var(--mu);font-size:12px;margin:0 8px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--s2);border:1px solid var(--ac);color:var(--tx);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:999;display:none;animation:su .3s ease}
+@keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdi">&#x1F6E1;&#xFE0F;</div>
+  <div><h1>GDPR Compliance Scanner</h1><p>Detect personal data exposure &mdash; CSV, Excel, JSON, TXT</p></div>
+  <span class="badge">EU REGULATION 2016/679</span>
+</div>
+<div id="us" class="ctr">
+  <div class="dz" id="dz">
+    <div class="di">&#x1F4C2;</div>
+    <h2>Drop a file to scan for PII</h2>
+    <p>Instantly detect personally identifiable information and<br>GDPR compliance risks in your data files.</p>
+    <div class="fts"><span class="ft">CSV</span><span class="ft">XLSX</span><span class="ft">XLS</span><span class="ft">JSON</span><span class="ft">TXT</span><span class="ft">TSV</span></div>
+    <button class="bbtn" onclick="document.getElementById('fi').click()">Browse Files</button>
+    <input type="file" id="fi" accept=".csv,.xlsx,.xls,.json,.txt,.tsv">
+    <p style="margin-top:16px;font-size:12px;color:var(--mu)">&#x1F512; All processing is done locally &mdash; no data leaves your machine</p>
+  </div>
+</div>
+<div id="ps" class="ctr">
+  <div class="sa"></div>
+  <h2 style="font-size:18px;margin-bottom:8px">Scanning file...</h2>
+  <p id="pl" class="pt">Reading file...</p>
+  <div class="pbw"><div class="pb" id="pbar"></div></div>
+  <p class="pt" id="pd" style="margin-top:8px;font-size:12px"></p>
+</div>
+<div id="rs" class="ctr">
+  <div class="fb">
+    <div class="fbi" id="rfi">&#x1F4C4;</div>
+    <div class="fbi2"><div class="fbn" id="rfn">&mdash;</div><div class="fbm" id="rfm">&mdash;</div></div>
+    <button class="snb" onclick="resetScanner()">&#x21B3; Scan New File</button>
+    <button class="eb" onclick="exportReport()">&#x2B07; Export Report</button>
+  </div>
+  <div class="kg">
+    <div class="kc tot"><div class="kl">Total Findings</div><div class="kv" id="kt">0</div><div class="ks" id="kcols">across 0 columns</div></div>
+    <div class="kc cr"><div class="kl">Critical</div><div class="kv" id="kcr">0</div><div class="ks">Art. 9 special categories</div></div>
+    <div class="kc hi"><div class="kl">High</div><div class="kv" id="khi">0</div><div class="ks">Direct identifiers</div></div>
+    <div class="kc me"><div class="kl">Medium</div><div class="kv" id="kme">0</div><div class="ks">Indirect identifiers</div></div>
+    <div class="kc lo"><div class="kl">Low</div><div class="kv" id="klo">0</div><div class="ks">Pseudonymous data</div></div>
+  </div>
+  <div class="mg">
+    <div class="cc">
+      <div class="ct">Findings by Data Type</div>
+      <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap">
+        <div class="chc"><canvas id="tc"></canvas></div>
+        <div class="cl" id="cl"></div>
+      </div>
+    </div>
+    <div class="sc">
+      <div class="ct">GDPR Risk Score</div>
+      <div class="scr" id="scr"><div class="sn" id="sn">&mdash;</div><div class="sl">/ 100</div></div>
+      <div class="rg" id="rg">&mdash;</div>
+      <div class="gcks" id="gcks"></div>
+    </div>
+  </div>
+  <div class="fc" id="fc">
+    <div class="ct">Detailed Findings</div>
+    <div class="tc">
+      <input type="text" class="sb" id="tsrch" placeholder="Search findings..." oninput="flt()">
+      <select class="fsl" id="rf" onchange="flt()"><option value="">All Risks</option><option value="CRITICAL">Critical</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option></select>
+      <select class="fsl" id="tf" onchange="flt()"><option value="">All Types</option></select>
+      <span class="fnc" id="fnc">0 findings</span>
+    </div>
+    <table><thead><tr>
+      <th onclick="srt(0)">Column / Field</th><th onclick="srt(1)">Data Type</th>
+      <th onclick="srt(2)">GDPR Article</th><th onclick="srt(3)">Risk</th>
+      <th>Sample Value</th><th>Count</th><th>Recommendation</th>
+    </tr></thead><tbody id="tb"></tbody></table>
+    <div class="pgn" id="pgn"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const HR=[
+  {p:['health','medical','diagnosis','illness','medication','disability'],t:'Health Data',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category requires explicit consent (Art. 9(2)(a)). Conduct DPIA. Apply data minimization.'},
+  {p:['race','ethnicity','ethnic','national_origin'],t:'Racial/Ethnic Origin',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category. Explicit consent required. Apply strict access controls.'},
+  {p:['religion','faith','belief','denomination'],t:'Religious Beliefs',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category. Only process with explicit consent or legal obligation. Encrypt at rest.'},
+  {p:['political','party_affiliation','political_opinion'],t:'Political Opinion',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category. Significant legal risk. Establish lawful basis; avoid where possible.'},
+  {p:['sexual_orientation','sexuality','gender_identity'],t:'Sexual Orientation',a:'Art. 9(1)',r:'CRITICAL',rec:'Highly sensitive. Anonymize immediately if not strictly required. DPIA mandatory.'},
+  {p:['criminal','conviction','offence','offense','arrest'],t:'Criminal Conviction',a:'Art. 10',r:'CRITICAL',rec:'Art. 10 data. Only process under official authority or legal basis.'},
+  {p:['biometric','fingerprint','iris','facial_rec','retina'],t:'Biometric Data',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category requiring explicit consent and DPIA (Art. 35).'},
+  {p:['genetic','dna','genome'],t:'Genetic Data',a:'Art. 9(1)',r:'CRITICAL',rec:'Special category. Explicit consent and strong safeguards required.'},
+  {p:['ssn','social_security','nin','national_insurance','bsn','nif','pesel'],t:'National ID Number',a:'Art. 4(1)',r:'HIGH',rec:'Strong direct identifier. Pseudonymize or tokenize. Apply RBAC and access logging.'},
+  {p:['passport','passport_no','passport_number'],t:'Passport Number',a:'Art. 4(1)',r:'HIGH',rec:'Government ID. Limit retention. Store only last 4 chars where possible.'},
+  {p:['email','email_address','mail','e_mail'],t:'Email Address',a:'Art. 4(1)',r:'HIGH',rec:'Direct identifier. Ensure lawful basis. Include in DSAR response scope.'},
+  {p:['phone','mobile','telephone','cell_phone','tel'],t:'Phone Number',a:'Art. 4(1)',r:'HIGH',rec:'Direct identifier. Verify need; apply consent controls.'},
+  {p:['dob','date_of_birth','birth_date','birthdate','birthday'],t:'Date of Birth',a:'Art. 4(1)',r:'HIGH',rec:'Direct identifier. Store age range where sufficient under Art. 5(1)(c).'},
+  {p:['full_name','first_name','last_name','surname','forename','fname','lname'],t:'Full Name',a:'Art. 4(1)',r:'HIGH',rec:'Direct identifier. Consider replacing with pseudonymous ID as primary key.'},
+  {p:['address','street_address','postcode','postal_code','zipcode'],t:'Physical Address',a:'Art. 4(1)',r:'HIGH',rec:'Location data enabling identification. Assess if full address is necessary.'},
+  {p:['iban','bank_account','account_number','sort_code','bic'],t:'Bank Account / IBAN',a:'Art. 4(1)',r:'HIGH',rec:'Financial identifier. Encrypt at rest and in transit. Restrict to authorized roles.'},
+  {p:['credit_card','card_number','cvv','pan_number'],t:'Credit/Debit Card',a:'Art. 4(1)',r:'HIGH',rec:'Payment data. Follow PCI DSS alongside GDPR. Never log full card numbers.'},
+  {p:['salary','income','wage','compensation','pay_grade'],t:'Financial / Salary',a:'Art. 4(1)',r:'HIGH',rec:'Sensitive financial data. Restrict to HR/payroll. Pseudonymize for analytics.'},
+  {p:['name'],t:'Name Field',a:'Art. 4(1)',r:'HIGH',rec:'Likely direct identifier. If used as key, replace with pseudonymous ID.'},
+  {p:['ip','ip_address','ipv4','ipv6','client_ip'],t:'IP Address',a:'Art. 4(1)',r:'MEDIUM',rec:'Personal data under GDPR. Anonymize in logs after retention period.'},
+  {p:['location','latitude','longitude','gps','coordinates','geo_lat'],t:'Location / GPS',a:'Art. 4(1)',r:'MEDIUM',rec:'Location tracking requires legal basis. Aggregate to region where precision not needed.'},
+  {p:['device_id','mac_address','imei','hardware_id'],t:'Device Identifier',a:'Art. 4(1)',r:'MEDIUM',rec:'Online identifier under GDPR. Obtain consent; apply retention limits.'},
+  {p:['cookie_id','session_id','tracking_id','user_token'],t:'Cookie / Session ID',a:'Art. 4(1)',r:'MEDIUM',rec:'Online identifiers. Must be covered in cookie policy. Apply consent management.'},
+  {p:['age','gender','sex'],t:'Demographic Data',a:'Art. 4(1)',r:'MEDIUM',rec:'Indirect identifier. Assess if demographic granularity is needed vs aggregates.'},
+  {p:['nationality','citizenship','country_of_origin'],t:'Nationality',a:'Art. 4(1)',r:'MEDIUM',rec:'Can combine with other data for profiling. Apply data minimization.'},
+  {p:['photo','image_url','picture','avatar'],t:'Photo / Image',a:'Art. 4(1)',r:'MEDIUM',rec:'Images are personal data. If biometric processing occurs, escalate to Art. 9.'},
+  {p:['id','identifier','ref','record_id','case_id','order_id'],t:'Record Identifier',a:'Art. 4(5)',r:'LOW',rec:'Pseudonymous. Low risk if key mapping is held separately and securely.'},
+  {p:['created_at','updated_at','timestamp','date_time'],t:'Timestamp',a:'Art. 4(1)',r:'LOW',rec:'Timestamps combined with other data can identify individuals. Review retention.'},
+  {p:['comment','note','description','remarks','feedback'],t:'Free Text / Notes',a:'Art. 4(1)',r:'LOW',rec:'Free text may contain unstructured PII. Implement scanning or user guidance.'},
+];
+const VP=[
+  {n:"Email",re:/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/g,t:"Email Address",a:"Art. 4(1)",r:"HIGH",rec:"Mask or pseudonymize. Include in DSAR scope."},
+  {n:"IPv4",re:/\b(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g,t:"IP Address",a:"Art. 4(1)",r:"MEDIUM",rec:"Anonymize IPs after retention period."},
+  {n:"IBAN",re:/\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/g,t:"IBAN / Bank Account",a:"Art. 4(1)",r:"HIGH",rec:"Encrypt financial identifiers at rest. Restrict access."},
+  {n:"Card",re:/\b4[0-9]{12}(?:[0-9]{3})?\b|\b5[1-5][0-9]{14}\b|\b3[47][0-9]{13}\b/g,t:"Credit Card Number",a:"Art. 4(1)",r:"CRITICAL",rec:"Comply with PCI DSS immediately. Tokenize or remove card data."},
+  {n:"UK NI",re:/\b[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]\b/gi,t:"UK National Insurance",a:"Art. 4(1)",r:"HIGH",rec:"Government identifier. Strict access control required."},
+  {n:"Phone",re:/(?<!\d)(\+?1?\s?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})(?!\d)/g,t:"Phone Number",a:"Art. 4(1)",r:"HIGH",rec:"Direct identifier. Ensure lawful basis for storing contact numbers."},
+  {n:"GPS",re:/[-+]?(?:[1-8]?\d(?:\.\d+)?|90(?:\.0+)?),\s*[-+]?(?:1[0-7]\d(?:\.\d+)?|[1-9]?\d(?:\.\d+)?|180(?:\.0+)?)/g,t:"GPS Coordinates",a:"Art. 4(1)",r:"MEDIUM",rec:"Location data requires consent or LIA. Aggregate where possible."},
+  {n:"DOB",re:/\b(?:0?[1-9]|[12]\d|3[01])[\/\-\.](?:0?[1-9]|1[012])[\/\-\.](?:19|20)\d{2}\b/g,t:"Date of Birth",a:"Art. 4(1)",r:"HIGH",rec:"DOB + name is a strong identifier. Consider age bands."},
+  {n:"Passport",re:/\b[A-Z]{1,2}[0-9]{7,9}\b/g,t:"Passport Number",a:"Art. 4(1)",r:"HIGH",rec:"Government ID. Apply strict retention limits and encryption."},
+];
+let AF=[],FF=[],curP=1,sCol=3,sDir=1,tChart=null;
+const PS=20;
+const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])pFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',e=>{if(e.target.files[0])pFile(e.target.files[0])});
+function resetScanner(){document.getElementById('rs').style.display='none';document.getElementById('us').style.display='flex';AF=[];FF=[];fi.value='';if(tChart){tChart.destroy();tChart=null;}}
+function showSec(id){['us','ps','rs'].forEach(s=>{const el=document.getElementById(s);el.style.display=s===id?(s==='us'?'flex':'block'):'none'});}
+function setProg(p,l,d=''){document.getElementById('pbar').style.width=p+'%';document.getElementById('pl').textContent=l;document.getElementById('pd').textContent=d;}
+const slp=ms=>new Promise(r=>setTimeout(r,ms));
+const rTxt=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(f)});
+const rBuf=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsArrayBuffer(f)});
+async function pFile(file){
+  showSec('ps');setProg(10,'Reading file...',file.name);await slp(80);
+  let rows=[],headers=[];
+  const ext=file.name.split('.').pop().toLowerCase();
+  const icons={csv:'&#x1F4CA;',xlsx:'&#x1F4D7;',xls:'&#x1F4D7;',json:'&#x1F4CB;',txt:'&#x1F4C4;',tsv:'&#x1F4CA;'};
+  try{
+    if(['csv','tsv','txt'].includes(ext)){
+      const txt=await rTxt(file);setProg(30,'Parsing...',nf(txt.length)+' chars');await slp(60);
+      const p=pCSV(txt,ext==='tsv'?'	':',');headers=p.h;rows=p.r;
+    }else if(['xlsx','xls'].includes(ext)){
+      const buf=await rBuf(file);setProg(30,'Parsing Excel...');await slp(60);
+      const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(data.length>0){headers=data[0].map(h=>String(h));rows=data.slice(1).map(r=>{const o={};headers.forEach((h,i)=>{o[h]=String(r[i]||'')});return o});}
+    }else if(ext==='json'){
+      const txt=await rTxt(file);setProg(30,'Parsing JSON...');await slp(60);
+      let data=JSON.parse(txt);if(!Array.isArray(data))data=[data];
+      if(data.length>0){headers=Object.keys(data[0]);rows=data.map(r=>{const o={};headers.forEach(h=>{o[h]=String(r[h]||'')});return o});}
+    }
+  }catch(e){showToast('Error: '+e.message);showSec('us');return;}
+  setProg(50,'Analyzing '+headers.length+' columns...',nf(rows.length)+' records');await slp(80);
+  const findings=[];let proc=0;
+  for(const h of headers){
+    const hn=h.toLowerCase().replace(/[\s\-\.]/g,'_');
+    for(const rule of HR){
+      if(rule.p.some(p=>hn.includes(p))){
+        const samps=rows.slice(0,100).map(r=>r[h]).filter(v=>v&&v.trim()&&v!=='null'&&v!=='undefined');
+        if(!samps.length)continue;
+        findings.push({col:h,type:rule.t,art:rule.a,risk:rule.r,samp:mv(samps[0]),occ:samps.length+(rows.length>100?'+':''),rec:rule.rec,src:'h'});break;
+      }
+    }
+    proc++;if(proc%5===0){setProg(50+Math.round(proc/headers.length*20),'Analyzing '+h,proc+'/'+headers.length);await slp(8);}
+  }
+  setProg(72,'Scanning values...',nf(rows.length)+' rows');await slp(80);
+  const ss=Math.min(rows.length,2000),sr=rows.slice(0,ss),vf={};
+  for(let ri=0;ri<sr.length;ri++){
+    const row=sr[ri];
+    for(const h of headers){
+      const v=row[h];if(!v||typeof v!=='string'||v.length<4)continue;
+      for(const vp of VP){
+        const m=v.match(vp.re);
+        if(m){const k=h+'::'+vp.n;if(!vf[k])vf[k]={col:h,type:vp.t,art:vp.a,risk:vp.r,samp:mv(m[0]),cnt:0,rec:vp.rec};vf[k].cnt++;}
+      }
+    }
+    if(ri%200===0){setProg(72+Math.round(ri/ss*18),'Scanning values...',nf(ri)+'/'+nf(ss));await slp(5);}
+  }
+  for(const[k,v]of Object.entries(vf)){
+    if(!findings.some(f=>f.col===v.col&&f.type===v.type)&&v.cnt>=2)
+      findings.push({col:v.col,type:v.type,art:v.art,risk:v.risk,samp:v.samp,occ:v.cnt+(ss<rows.length?'+':''),rec:v.rec,src:'v'});
+  }
+  setProg(95,'Building report...');await slp(100);
+  AF=findings;renderR(file,headers,rows,icons[ext]||'&#x1F4C4;');showSec('rs');
+}
+function renderR(file,headers,rows,icon){
+  document.getElementById("rfi").innerHTML=icon;
+  document.getElementById("rfn").textContent=file.name;
+  document.getElementById("rfm").textContent=nf(rows.length)+" records · "+headers.length+" cols · "+fb(file.size)+" · "+new Date().toLocaleTimeString();
+  const c={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};const cols=new Set();
+  AF.forEach(f=>{c[f.risk]++;cols.add(f.col)});
+  document.getElementById("kt").textContent=AF.length;
+  document.getElementById("kcols").textContent="across "+cols.size+" column"+(cols.size!==1?"s":"");
+  ["cr","hi","me","lo"].forEach((k,i)=>document.getElementById("k"+k).textContent=c[["CRITICAL","HIGH","MEDIUM","LOW"][i]]);
+  const raw=AF.length===0?100:Math.max(0,Math.round(100-((c.CRITICAL*25+c.HIGH*12+c.MEDIUM*5+c.LOW*2)/Math.max(1,headers.length*10)*100)));
+  const sc=Math.max(0,Math.min(100,raw));document.getElementById("sn").textContent=sc;
+  let g,col;if(sc>=80){g="Low Risk";col="#22c55e";}else if(sc>=60){g="Moderate Risk";col="#eab308";}else if(sc>=40){g="High Risk";col="#f97316";}else{g="Critical Risk";col="#ef4444";}
+  document.getElementById("scr").style.borderColor=col;document.getElementById("sn").style.color=col;
+  const rge=document.getElementById("rg");rge.textContent=g;rge.style.color=col;
+  const cks=[
+    {l:"No Art. 9 special categories",p:c.CRITICAL===0},
+    {l:"No direct identifiers (HIGH)",p:c.HIGH===0},
+    {l:"No unmasked financial data",p:!AF.some(f=>f.type.includes("IBAN")||f.type.includes("Card"))},
+    {l:"No raw government IDs",p:!AF.some(f=>f.type.includes("National")||f.type.includes("Passport"))},
+    {l:"No location / GPS data",p:!AF.some(f=>f.type.includes("GPS")||f.type.includes("Location"))},
+    {l:"Low total exposure",p:AF.length<=3,w:AF.length>3&&AF.length<=8},
+  ];
+  document.getElementById("gcks").innerHTML=cks.map(k=>"<div class=\"gck\"><div class=\"ci "+(k.p?"cp":(k.w&&!k.p?"cw":"cf"))+"\">"+(k.p?"&#x2713;":(k.w&&!k.p?"!":"&#x2717;"))+"</div><span style=\"color:"+(k.p?"var(--mu)":(k.w&&!k.p?"var(--me)":"var(--cr)"))+"\">"+(esc(k.l))+"</span></div>").join("");
+  const tc={};AF.forEach(f=>{tc[f.type]=(tc[f.type]||0)+1});
+  const tl=Object.keys(tc),tv=tl.map(t=>tc[t]);
+  const pal=["#6366f1","#ef4444","#f97316","#eab308","#22c55e","#38bdf8","#a855f7","#f43f5e","#84cc16","#06b6d4"];
+  if(tChart)tChart.destroy();
+  const ctx=document.getElementById("tc").getContext("2d");
+  if(tl.length>0){
+    tChart=new Chart(ctx,{type:"doughnut",data:{labels:tl,datasets:[{data:tv,backgroundColor:pal.slice(0,tl.length),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>" "+c.label+": "+c.raw}}}}});
+    document.getElementById("cl").innerHTML=tl.map((l,i)=>"<div class=\"li\"><div class=\"ld\" style=\"background:"+pal[i%pal.length]+"\"></div><span class=\"ll\">"+esc(l)+"</span><span class=\"lc\">"+tv[i]+"</span></div>").join("");
+  }else{
+    document.getElementById("tc").parentElement.innerHTML="<div style=\"text-align:center;color:var(--lo);padding:40px;font-size:40px\">&#x2713;</div>";
+    document.getElementById("cl").innerHTML="<div style=\"color:var(--lo);text-align:center;font-size:13px\">No PII detected</div>";
+  }
+  document.getElementById("tf").innerHTML="<option value=\"\">"+"All Types</option>"+[...new Set(AF.map(f=>f.type))].sort().map(t=>"<option value=\""+(esc(t))+"\">"+esc(t)+"</option>").join("");
+  if(AF.length===0){document.getElementById("fc").innerHTML="<div class=\"ok\"><div class=\"oki\">&#x1F389;</div><h3>No PII Detected</h3><p>No PII found based on column and value pattern analysis.</p></div>";}
+  else{FF=[...AF];renderT();}
+}
+function flt(){
+  const q=document.getElementById("tsrch").value.toLowerCase();
+  const rf=document.getElementById("rf").value,tpf=document.getElementById("tf").value;
+  FF=AF.filter(f=>(!q||f.col.toLowerCase().includes(q)||f.type.toLowerCase().includes(q))&&(!rf||f.risk===rf)&&(!tpf||f.type===tpf));
+  curP=1;renderT();
+}
+const RO={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
+function srt(col){if(sCol===col)sDir*=-1;else{sCol=col;sDir=1;}document.querySelectorAll("thead th").forEach((th,i)=>th.classList.toggle("sorted",i===col));renderT();}
+function renderT(){
+  const sorted=[...FF].sort((a,b)=>{
+    if(sCol===3)return(RO[a.risk]-RO[b.risk])*sDir;
+    const fa=[a.col,a.type,a.art,a.risk],fb2=[b.col,b.type,b.art,b.risk];
+    return fa[sCol].localeCompare(fb2[sCol])*sDir;
+  });
+  const tot=sorted.length,pages=Math.ceil(tot/PS),start=(curP-1)*PS;
+  const pr=sorted.slice(start,start+PS);
+  document.getElementById("fnc").textContent=tot+" finding"+(tot!==1?"s":"");
+  const tb=document.getElementById("tb");
+  if(!pr.length){tb.innerHTML="<tr><td colspan=\"7\"><div class=\"es\"><div class=\"ei\">&#x1F50D;</div><p>No findings match filters</p></div></td></tr>";return;}
+  tb.innerHTML=pr.map(f=>"<tr><td><b>"+esc(f.col)+"</b></td><td>"+esc(f.type)+"</td><td><span class=\"at\">"+esc(f.art)+"</span></td><td><span class=\"rb "+f.risk+"\">"+f.risk+"</span></td><td><span class=\"sv\" title=\""+esc(f.samp)+"\">"+esc(f.samp)+"</span></td><td style=\"text-align:center;color:var(--mu)\">"+f.occ+"</td><td><span class=\"rc\">"+esc(f.rec)+"</span></td></tr>").join("");
+  const pgn=document.getElementById("pgn");
+  if(pages<=1){pgn.innerHTML="";return;}
+  const b=[];
+  b.push("<button class=\"pb2\" onclick=\"gP("+(curP-1)+")\" "+(curP===1?"disabled":"")+">&#x2039;</button>");
+  for(let p=1;p<=pages;p++){
+    if(pages<=7||Math.abs(p-curP)<=2||p===1||p===pages)b.push("<button class=\"pb2 "+(p===curP?"active":"")+"\" onclick=\"gP("+p+")\">"+ p+"</button>");
+    else if(b[b.length-1]!=="<span class=\"piw\">&hellip;</span>")b.push("<span class=\"piw\">&hellip;</span>");
+  }
+  b.push("<button class=\"pb2\" onclick=\"gP("+(curP+1)+")\" "+(curP===pages?"disabled":"")+">&#x203A;</button>");
+  pgn.innerHTML=b.join("");
+}
+function gP(p){const pg=Math.ceil(FF.length/PS);if(p<1||p>pg)return;curP=p;renderT();}
+function exportReport(){
+  const fn=document.getElementById("rfn").textContent,meta=document.getElementById("rfm").textContent;
+  const c={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};AF.forEach(f=>c[f.risk]++);
+  const sc=document.getElementById("sn").textContent,gr=document.getElementById("rg").textContent;
+  const rh=AF.length===0?"<tr><td colspan=\"7\" style=\"text-align:center;padding:40px;color:#666\">No PII detected</td></tr>":
+    [...AF].sort((a,b)=>RO[a.risk]-RO[b.risk]).map(f=>
+      "<tr><td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500\">"+esc(f.col)+"</td><td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb\">"+esc(f.type)+"</td>"
+      +"<td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb\"><span style=\"background:#ede9fe;color:#6366f1;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600\">"+esc(f.art)+"</span></td>"
+      +"<td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb\"><span style=\"padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:"+(f.risk==="CRITICAL"?"#fef2f2":f.risk==="HIGH"?"#fff7ed":f.risk==="MEDIUM"?"#fefce8":"#f0fdf4")+";color:"+(f.risk==="CRITICAL"?"#ef4444":f.risk==="HIGH"?"#f97316":f.risk==="MEDIUM"?"#ca8a04":"#16a34a")+"\">"+f.risk+"</span></td>"
+      +"<td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb;font-family:monospace;font-size:12px;color:#6366f1\">"+esc(f.samp)+"</td><td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center\">"+f.occ+"</td><td style=\"padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#666\">"+esc(f.rec)+"</td></tr>"
+    ).join("");
+  const html="<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>GDPR Report</title>"
+    +"<style>body{font-family:Segoe UI,sans-serif;margin:0;padding:32px;background:#f8fafc;color:#1e293b}.hdr{background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#fff;padding:32px;border-radius:16px;margin-bottom:24px}.hdr h1{margin:0 0 6px;font-size:22px}.kpis{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}.kpi{background:#fff;border-radius:12px;padding:20px;flex:1;min-width:120px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}.kpi .v{font-size:32px;font-weight:800}.kpi .l{font-size:11px;color:#64748b;text-transform:uppercase;margin-top:4px}.sec{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.08)}.sec h2{margin:0 0 16px;font-size:15px}table{width:100%;border-collapse:collapse}th{background:#f1f5f9;padding:10px 14px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase}.ftr{text-align:center;font-size:12px;color:#94a3b8;margin-top:32px}</style></head>"
+    +"<body><div class=\"hdr\"><h1>&#x1F6E1;&#xFE0F; GDPR Compliance Scan Report</h1><p>"+esc(fn)+" &middot; "+esc(meta)+"</p><p style=\"margin-top:8px\"><strong style=\"font-size:20px\">"+sc+"</strong>/100 &mdash; "+gr+"</p></div>"
+    +"<div class=\"kpis\"><div class=\"kpi\"><div class=\"v\" style=\"color:#6366f1\">"+AF.length+"</div><div class=\"l\">Total</div></div><div class=\"kpi\"><div class=\"v\" style=\"color:#ef4444\">"+c.CRITICAL+"</div><div class=\"l\">Critical</div></div><div class=\"kpi\"><div class=\"v\" style=\"color:#f97316\">"+c.HIGH+"</div><div class=\"l\">High</div></div><div class=\"kpi\"><div class=\"v\" style=\"color:#ca8a04\">"+c.MEDIUM+"</div><div class=\"l\">Medium</div></div><div class=\"kpi\"><div class=\"v\" style=\"color:#16a34a\">"+c.LOW+"</div><div class=\"l\">Low</div></div></div>"
+    +"<div class=\"sec\"><h2>Detailed Findings (sorted by risk)</h2><table><thead><tr><th>Column</th><th>Data Type</th><th>Article</th><th>Risk</th><th>Sample</th><th>Count</th><th>Recommendation</th></tr></thead><tbody>"+rh+"</tbody></table></div>"
+    +"<div class=\"ftr\">GDPR Compliance Scanner &middot; "+new Date().toLocaleString()+" &middot; All processing performed locally</div></body></html>";
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([html],{type:"text/html"}));
+  a.download="GDPR_Report_"+fn.replace(/\.[^.]+$/,"")+"_"+new Date().toISOString().slice(0,10)+".html";a.click();showToast("Report exported!");
+}
+function pCSV(txt,d=','){
+  const lines=txt.split(/?
+/).filter(l=>l.trim());if(!lines.length)return{h:[],r:[]};
+  const h=pLine(lines[0],d);
+  const r=lines.slice(1).map(l=>{const v=pLine(l,d);const o={};h.forEach((hh,i)=>{o[hh]=v[i]||""});return o});
+  return{h,r};
+}
+function pLine(l,d){
+  const r=[];let c="",q=false;
+  for(let i=0;i<l.length;i++){
+    const ch=l[i];
+    if(ch==='"'){if(q&&l[i+1]==='"'){c+='"';i++;}else q=!q;}
+    else if(ch===d&&!q){r.push(c.trim());c="";}
+    else c+=ch;
+  }
+  r.push(c.trim());return r;
+}
+function mv(v){
+  if(!v)return"—";const s=String(v);
+  if(s.length<=4)return"****";
+  if(/@/.test(s)){const[u,d]=s.split("@");return u.slice(0,2)+"***@"+d;}
+  if(/^[\d\s\-+()]+$/.test(s))return s.slice(0,4)+" **** "+s.slice(-4);
+  return s.slice(0,3)+"****"+s.slice(-2);
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function nf(n){return Number(n).toLocaleString()}
+function fb(b){if(b<1024)return b+" B";if(b<1048576)return(b/1024).toFixed(1)+" KB";return(b/1048576).toFixed(1)+" MB"}
+function showToast(m){const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500)}
+</script>
+</body>
+</html>
