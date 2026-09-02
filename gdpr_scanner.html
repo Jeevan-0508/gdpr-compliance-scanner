@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,509 +9,461 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f1117;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-.top{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:24px 32px;border-bottom:1px solid #4338ca}
-.top h1{font-size:22px;font-weight:700;color:#a5b4fc}
-.top p{font-size:13px;color:#94a3b8;margin-top:4px}
-.wrap{max-width:1100px;margin:0 auto;padding:24px}
-.drop-zone{border:2px dashed #4338ca;border-radius:12px;padding:48px;text-align:center;cursor:pointer;transition:.2s;background:#1e1b4b22;margin-bottom:24px}
+nav{background:#0a0d14;border-bottom:1px solid #1e293b;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:#a5b4fc;cursor:pointer}
+.nav-logo span{font-size:20px}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:#64748b;transition:.15s;border:none;background:none}
+.nav-tab:hover{color:#e2e8f0;background:#1e293b}
+.nav-tab.active{color:#a5b4fc;background:#1e1b4b}
+.page{display:none}.page.active{display:block}
+.hero{text-align:center;padding:72px 32px 48px;background:radial-gradient(ellipse at 50% 0%,#1e1b4b 0%,#0f1117 70%)}
+.hero-badge{display:inline-block;background:#1e1b4b;border:1px solid #4338ca;color:#a5b4fc;font-size:12px;font-weight:600;padding:4px 14px;border-radius:20px;margin-bottom:20px;letter-spacing:.05em}
+.hero h1{font-size:42px;font-weight:800;line-height:1.15;margin-bottom:16px}
+.hero h1 span{background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:#94a3b8;max-width:560px;margin:0 auto 32px;line-height:1.7}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:.15s}
+.btn-pri{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 20px #4f46e530}
+.btn-pri:hover{transform:translateY(-1px);box-shadow:0 6px 24px #4f46e540}
+.btn-sec{background:#1e293b;color:#94a3b8;border:1px solid #334155}.btn-sec:hover{background:#334155;color:#e2e8f0}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:7px}
+.wrap{max-width:1060px;margin:0 auto;padding:24px 24px 64px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6366f1;margin-bottom:10px}
+.section-title{font-size:26px;font-weight:800;margin-bottom:10px}
+.section-sub{color:#94a3b8;font-size:15px;line-height:1.7;max-width:700px}
+.gdpr-explainer{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.gdpr-card{background:#111827;border:1px solid #1e293b;border-radius:14px;padding:24px;transition:.2s}
+.gdpr-card:hover{border-color:#4338ca;transform:translateY(-2px)}
+.gdpr-card .icon{font-size:28px;margin-bottom:12px}
+.gdpr-card h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.gdpr-card p{font-size:13px;color:#94a3b8;line-height:1.6}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:28px}
+.cat-card{border-radius:14px;padding:24px;border:1px solid;transition:.2s}
+.cat-card:hover{transform:translateY(-2px)}
+.cat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.cat-card h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.cat-card p{font-size:12px;line-height:1.6;opacity:.8}
+.cat-card ul{margin-top:10px;padding-left:14px}
+.cat-card ul li{font-size:12px;opacity:.7;margin-bottom:3px}
+.cat-art9{background:#1a0a2e;border-color:#7c3aed;color:#e9d5ff}
+.cat-art9 .cat-icon{background:#3b0764}
+.cat-direct{background:#1a0a0a;border-color:#dc2626;color:#fecaca}
+.cat-direct .cat-icon{background:#450a0a}
+.cat-indirect{background:#0a1628;border-color:#2563eb;color:#bfdbfe}
+.cat-indirect .cat-icon{background:#0c2340}
+.cat-value{background:#0a1a0a;border-color:#16a34a;color:#bbf7d0}
+.cat-value .cat-icon{background:#052e16}
+.steps{display:flex;gap:0;margin-top:28px;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:28px;right:28px;height:2px;background:linear-gradient(90deg,#4f46e5,#7c3aed,#4f46e5);opacity:.3}
+.step{flex:1;text-align:center;padding:0 16px;position:relative;z-index:1}
+.step-num{width:56px;height:56px;border-radius:50%;background:#1e1b4b;border:2px solid #4338ca;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 14px;font-weight:800;color:#a5b4fc}
+.step h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.step p{font-size:12px;color:#64748b;line-height:1.5}
+.risk-tbl{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
+.risk-tbl th{padding:10px 16px;text-align:left;background:#0a0d14;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.risk-tbl td{padding:12px 16px;border-bottom:1px solid #1e293b}
+.risk-tbl tr:hover td{background:#111827}
+.bdg{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.b-crit{background:#450a0a;color:#fca5a5}.b-high{background:#431407;color:#fdba74}
+.b-med{background:#422006;color:#fde68a}.b-low{background:#052e16;color:#86efac}
+.cta-banner{background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid #4338ca;border-radius:16px;padding:40px;text-align:center;margin-top:48px}
+.cta-banner h2{font-size:24px;font-weight:800;margin-bottom:10px}
+.cta-banner p{color:#94a3b8;margin-bottom:24px;font-size:14px}
+.scanner-top{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:20px 32px;border-bottom:1px solid #4338ca}
+.scanner-top h2{font-size:18px;font-weight:700;color:#a5b4fc}
+.scanner-top p{font-size:13px;color:#94a3b8;margin-top:3px}
+.drop-zone{border:2px dashed #4338ca;border-radius:14px;padding:52px;text-align:center;cursor:pointer;transition:.2s;background:#1e1b4b11;margin:24px}
 .drop-zone:hover,.drop-zone.over{border-color:#818cf8;background:#3730a322}
-.drop-zone svg{margin-bottom:12px;opacity:.7}
-.drop-zone p{color:#94a3b8;font-size:14px}
-.drop-zone .hint{font-size:12px;color:#64748b;margin-top:6px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
-.btn-pri{background:#4f46e5;color:#fff}.btn-pri:hover{background:#4338ca}
-.btn-sec{background:#1e293b;color:#94a3b8;border:1px solid #334155}.btn-sec:hover{background:#334155}
-.btn-sm{padding:6px 14px;font-size:12px}
+.drop-zone p{color:#94a3b8;font-size:14px;margin:8px 0 4px}
+.drop-zone .hint{font-size:12px;color:#475569}
 #fileInput{display:none}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:0 24px 20px}
 .card{background:#1e293b;border-radius:10px;padding:16px;border:1px solid #334155}
-.card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.card .val{font-size:28px;font-weight:700}
+.card .lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.card .val{font-size:26px;font-weight:700}
 .card .sub{font-size:12px;color:#64748b;margin-top:2px}
 .c-red{color:#f87171}.c-orange{color:#fb923c}.c-yellow{color:#fbbf24}.c-green{color:#4ade80}.c-blue{color:#60a5fa}.c-indigo{color:#a5b4fc}
-.risk-bar{width:100%;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;margin-top:8px}
-.risk-fill{height:100%;border-radius:4px;transition:width .6s}
-.section{background:#1e293b;border-radius:10px;border:1px solid #334155;margin-bottom:20px;overflow:hidden}
-.section-hdr{padding:14px 20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
-.section-hdr h2{font-size:14px;font-weight:600;color:#a5b4fc}
-.section-body{padding:20px}
-#chartWrap{width:220px;margin:0 auto}
+.rbar{width:100%;height:6px;background:#0f1117;border-radius:3px;overflow:hidden;margin-top:8px}
+.rfill{height:100%;border-radius:3px;transition:width .6s}
+.panel{background:#1e293b;border-radius:12px;border:1px solid #334155;margin:0 24px 20px;overflow:hidden}
+.panel-hdr{padding:14px 20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.panel-hdr h3{font-size:14px;font-weight:600;color:#a5b4fc}
+.panel-body{padding:20px}
+#chartWrap{width:200px;margin:0 auto}
+.two-col{display:grid;grid-template-columns:220px 1fr;gap:20px;margin:0 24px 20px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{padding:10px 12px;text-align:left;background:#0f1117;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;user-select:none;white-space:nowrap}
+th{padding:9px 12px;text-align:left;background:#0f1117;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
 th:hover{color:#a5b4fc}
 td{padding:10px 12px;border-bottom:1px solid #1e293b;vertical-align:top}
-tr:hover td{background:#1e293b44}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
-.badge-crit{background:#450a0a;color:#fca5a5}.badge-high{background:#431407;color:#fdba74}
-.badge-med{background:#422006;color:#fde68a}.badge-low{background:#052e16;color:#86efac}
-.badge-art9{background:#3b0764;color:#e9d5ff}.badge-direct{background:#1e1b4b;color:#a5b4fc}
-.badge-indirect{background:#0c2340;color:#7dd3fc}
-.pill{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;background:#0f1117;color:#64748b;margin:1px}
+tr:hover td{background:#1e293b55}
+.b2{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.bc{background:#450a0a;color:#fca5a5}.bh{background:#431407;color:#fdba74}
+.bm{background:#422006;color:#fde68a}.bl{background:#052e16;color:#86efac}
+.ba{background:#3b0764;color:#e9d5ff}.bd{background:#1e1b4b;color:#a5b4fc}
+.bi{background:#0c2340;color:#7dd3fc}.bv{background:#052e16;color:#86efac}
+.pill{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;background:#0f1117;color:#64748b;margin:1px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#161b27;border-bottom:1px solid #334155}
+.frow select,.frow input{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:6px 10px;font-size:12px}
+.frow input{flex:1;min-width:160px}
+.empty{text-align:center;padding:32px;color:#64748b;font-size:13px}
+#results{display:none}
 .toast{position:fixed;bottom:24px;right:24px;background:#1e293b;border:1px solid #4f46e5;color:#e2e8f0;padding:12px 20px;border-radius:10px;font-size:13px;z-index:999;display:none;max-width:360px}
 .toast.show{display:block;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-#results{display:none}
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#161b27;border-bottom:1px solid #334155}
-.filter-row select,.filter-row input{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:6px 10px;font-size:12px}
-.filter-row input{flex:1;min-width:160px}
-.empty{text-align:center;padding:32px;color:#64748b;font-size:13px}
-.col-c{text-align:center}
+@media(max-width:700px){.gdpr-explainer,.two-col{grid-template-columns:1fr}.steps{flex-direction:column;gap:20px}.steps::before{display:none}.hero h1{font-size:28px}}
 </style>
 </head>
 <body>
-<div class="top">
-  <h1>&#128274; GDPR Compliance Scanner</h1>
-  <p>Upload a data file to detect personal data fields and assess compliance risk</p>
-</div>
-<div class="wrap">
-
-<div class="drop-zone" id="dropZone">
-  <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-  <p>Drag &amp; drop your file here</p>
-  <p class="hint">or</p>
-  <button class="btn btn-pri" style="margin:12px auto 0" onclick="document.getElementById('fileInput').click()">Browse File</button>
-  <p class="hint" style="margin-top:10px">Supports: CSV, XLSX, XLS, TSV, JSON, TXT</p>
-  <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv,.json,.txt">
-</div>
-
-<div id="results">
-  <div class="cards" id="kpiCards"></div>
-  <div style="display:grid;grid-template-columns:240px 1fr;gap:20px;margin-bottom:20px">
-    <div class="section">
-      <div class="section-hdr"><h2>Risk Score</h2></div>
-      <div class="section-body" style="text-align:center">
-        <div id="chartWrap"><canvas id="riskChart"></canvas></div>
-        <div id="riskLabel" style="margin-top:8px;font-size:13px;color:#94a3b8"></div>
+<nav>
+  <div class="nav-logo" onclick="showPage('home')"><span>&#128274;</span> GDPR Scanner</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-home" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" id="tab-scanner" onclick="showPage('scanner')">&#9658; Start Scanning</button>
+  </div>
+</nav>
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">GDPR COMPLIANCE TOOL</div>
+    <h1>Know what personal data<br><span>lives in your files</span></h1>
+    <p>Upload any CSV, Excel or JSON file and get an instant report showing which columns contain personal data, how sensitive it is, and what GDPR says about it.</p>
+    <button class="btn btn-pri" onclick="showPage('scanner')" style="font-size:15px;padding:14px 36px">&#9658;&nbsp; Start Scanning</button>
+  </div>
+  <div class="wrap">
+    <div style="margin-bottom:56px">
+      <div class="section-label">The basics</div>
+      <div class="section-title">What is GDPR?</div>
+      <div class="section-sub">GDPR (General Data Protection Regulation) is an EU law that controls how organisations collect, store and share personal data. If your files contain information about real people — employees, customers, drivers — GDPR applies to you.</div>
+      <div class="gdpr-explainer">
+        <div class="gdpr-card"><div class="icon">&#128100;</div><h3>Personal Data</h3><p>Any information that can identify a living person — directly (their name, email) or indirectly (their employee ID, login alias, or tour ID combined with other data).</p></div>
+        <div class="gdpr-card"><div class="icon">&#9878;</div><h3>Why it matters</h3><p>Sharing a file with employee emails, login aliases, or management hierarchy chains outside Amazon without proper controls is a GDPR violation. Fines can reach €20 million or 4% of global turnover.</p></div>
+        <div class="gdpr-card"><div class="icon">&#128221;</div><h3>Data Subject Rights</h3><p>Every person whose data you hold has the right to access it, correct it, or request deletion. Knowing exactly what data you hold is the first step to compliance.</p></div>
+        <div class="gdpr-card"><div class="icon">&#128272;</div><h3>What this tool does</h3><p>It scans column headers and actual cell values in your file, matches them against GDPR risk patterns, and tells you exactly which fields are a concern — and why.</p></div>
       </div>
     </div>
-    <div class="section">
-      <div class="section-hdr"><h2>Detected Categories</h2></div>
-      <div class="section-body" id="catBody"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-hdr">
-      <h2>Findings</h2>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-sec btn-sm" onclick="exportReport()">&#8681; Export Report</button>
-        <button class="btn btn-sec btn-sm" onclick="resetScan()">&#8635; New Scan</button>
+    <div style="margin-bottom:56px">
+      <div class="section-label">Detection categories</div>
+      <div class="section-title">What the scanner checks for</div>
+      <div class="section-sub">Every finding is classified into one of four categories based on how sensitive it is under GDPR.</div>
+      <div class="cat-grid">
+        <div class="cat-card cat-art9">
+          <div class="cat-icon">&#9940;</div>
+          <h3>Art.9 Special Categories</h3>
+          <p>The most protected class under GDPR Article 9. Processing this data is <strong>prohibited by default</strong> unless you have explicit consent or a legal basis.</p>
+          <ul><li>Health &amp; medical data</li><li>Biometrics (face ID, fingerprints)</li><li>Genetic / DNA data</li><li>Race or ethnic origin</li><li>Religion or beliefs</li><li>Political opinions</li><li>Sexual orientation</li><li>Criminal records</li></ul>
+        </div>
+        <div class="cat-card cat-direct">
+          <div class="cat-icon">&#128100;</div>
+          <h3>Direct Identifiers</h3>
+          <p>Fields that <strong>directly name or reach a specific person</strong>. No inference needed — the data alone identifies someone.</p>
+          <ul><li>Full name, first/last name</li><li>Email address</li><li>Phone number</li><li>Passport / National ID</li><li>Date of birth</li><li>Bank account / IBAN</li><li>Credit card number</li><li>IP address</li></ul>
+        </div>
+        <div class="cat-card cat-indirect">
+          <div class="cat-icon">&#128270;</div>
+          <h3>Indirect Identifiers</h3>
+          <p>Fields that <strong>don't name someone directly</strong> but can identify them when combined with other data. Still personal data under GDPR.</p>
+          <ul><li>Login / username / alias</li><li>Employee / user ID</li><li>Location &amp; GPS coordinates</li><li>Address / postcode</li><li>Age or gender</li><li>Salary / pay grade</li><li>Device or session ID</li><li>Tour / contract ID</li></ul>
+        </div>
+        <div class="cat-card cat-value">
+          <div class="cat-icon">&#128202;</div>
+          <h3>Value Patterns</h3>
+          <p>The scanner looks <strong>inside the actual cell values</strong>, not just column names. It uses regex patterns to detect personal data hiding in unexpected columns.</p>
+          <ul><li>Email addresses in any column</li><li>Phone number formats</li><li>IBAN / card number patterns</li><li>IP addresses</li><li>GPS coordinate formats</li><li>Date-of-birth formats</li><li>National Insurance numbers</li><li>Passport-like IDs</li></ul>
+        </div>
       </div>
     </div>
-    <div class="filter-row">
-      <input type="text" id="fSearch" placeholder="Search field name..." oninput="renderTable()">
-      <select id="fSev" onchange="renderTable()">
-        <option value="">All Severity</option>
-        <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
-      </select>
-      <select id="fCat" onchange="renderTable()">
-        <option value="">All Categories</option>
-        <option>Art.9 Special</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option>
-      </select>
+    <div style="margin-bottom:56px">
+      <div class="section-label">How it works</div>
+      <div class="section-title">Three steps, instant results</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><h3>Upload your file</h3><p>Drop in a CSV, Excel (.xlsx/.xls), JSON, TSV or TXT file. Nothing leaves your browser — all processing happens locally on your machine.</p></div>
+        <div class="step"><div class="step-num">2</div><h3>Two-pass scan</h3><p>Pass 1 checks every column header against 29 GDPR rules. Pass 2 samples up to 200 rows per column and runs 9 regex patterns on the actual values.</p></div>
+        <div class="step"><div class="step-num">3</div><h3>Review &amp; export</h3><p>Get a risk score, category breakdown and sortable findings table. Export a clean HTML report to share with your team or compliance lead.</p></div>
+      </div>
     </div>
-    <div id="tableWrap"></div>
+    <div style="margin-bottom:48px">
+      <div class="section-label">Severity levels</div>
+      <div class="section-title">How risk is scored</div>
+      <div class="section-sub">Each finding gets a severity level. The overall risk score (0-100) adds them up.</div>
+      <div class="panel" style="margin:20px 0 0">
+        <table class="risk-tbl">
+          <thead><tr><th>Level</th><th>Score per field</th><th>What it means</th><th>Examples</th></tr></thead>
+          <tbody>
+            <tr><td><span class="bdg b-crit">Critical</span></td><td style="color:#f87171;font-weight:700">+20 pts</td><td>Art.9 special categories or unique identifiers. Processing this without legal basis is a direct GDPR violation.</td><td>SSN, passport, IBAN, health data, biometrics, criminal record</td></tr>
+            <tr><td><span class="bdg b-high">High</span></td><td style="color:#fb923c;font-weight:700">+12 pts</td><td>Direct identifiers that clearly point to a person. Should never appear in shared files without pseudonymisation.</td><td>Email, phone, full name, date of birth, IP address, GPS</td></tr>
+            <tr><td><span class="bdg b-med">Medium</span></td><td style="color:#fbbf24;font-weight:700">+6 pts</td><td>Indirect identifiers. Low risk alone but can identify someone in combination with other fields.</td><td>Login alias, employee ID, gender, age, address, device ID</td></tr>
+            <tr><td><span class="bdg b-low">Low</span></td><td style="color:#4ade80;font-weight:700">+2 pts</td><td>Operational IDs loosely linked to people. Worth noting but unlikely to cause a violation on their own.</td><td>Tour ID, contract ID, session token</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="cta-banner">
+      <h2>Ready to scan your file?</h2>
+      <p>Works entirely in your browser. No uploads, no servers, no data ever leaves your machine.</p>
+      <button class="btn btn-pri" onclick="showPage('scanner')" style="font-size:14px;padding:13px 32px">&#9658;&nbsp; Open Scanner</button>
+    </div>
   </div>
 </div>
-
+<div class="page" id="page-scanner">
+  <div class="scanner-top">
+    <h2>&#128274; GDPR Compliance Scanner</h2>
+    <p>Upload a data file to detect personal data fields and assess compliance risk</p>
+  </div>
+  <div id="uploadSection">
+    <div class="drop-zone" id="dropZone">
+      <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+      <p>Drag &amp; drop your file here</p>
+      <p class="hint">or</p>
+      <button class="btn btn-pri btn-sm" style="margin:10px auto 0" onclick="document.getElementById('fileInput').click()">Browse File</button>
+      <p class="hint" style="margin-top:10px">CSV &nbsp;|&nbsp; XLSX &nbsp;|&nbsp; XLS &nbsp;|&nbsp; TSV &nbsp;|&nbsp; JSON &nbsp;|&nbsp; TXT</p>
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv,.json,.txt">
+    </div>
+    <div style="text-align:center;padding-bottom:20px">
+      <button class="btn btn-sec btn-sm" onclick="showPage('home')">&#8592; Back to guide</button>
+    </div>
+  </div>
+  <div id="results">
+    <div class="cards" id="kpiCards"></div>
+    <div class="two-col">
+      <div class="panel" style="margin:0">
+        <div class="panel-hdr"><h3>Risk Score</h3></div>
+        <div class="panel-body" style="text-align:center">
+          <div id="chartWrap"><canvas id="riskChart"></canvas></div>
+          <div id="riskLabel" style="margin-top:8px;font-size:13px;color:#94a3b8"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin:0">
+        <div class="panel-hdr"><h3>Detected Categories</h3></div>
+        <div class="panel-body" id="catBody"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <h3>Findings</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sec btn-sm" onclick="exportReport()">&#8681; Export Report</button>
+          <button class="btn btn-sec btn-sm" onclick="resetScan()">&#8635; New Scan</button>
+        </div>
+      </div>
+      <div class="frow">
+        <input type="text" id="fSearch" placeholder="Search field name..." oninput="renderTable()">
+        <select id="fSev" onchange="renderTable()"><option value="">All Severity</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
+        <select id="fCat" onchange="renderTable()"><option value="">All Categories</option><option>Art.9 Special</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option></select>
+      </div>
+      <div id="tableWrap"></div>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-// ─── GDPR Rules ────────────────────────────────────────────────────────────
-var HEADER_RULES = [
-  // Art.9 Special categories
-  {pat:/health|medical|diagnos|disease|illness|patient|clinical|prescri|medication|treatment|symptom/i, label:'Health Data', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/biometric|fingerprint|retina|iris|facial.recog|face.id|voice.print/i, label:'Biometric Data', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/genetic|dna|rna|genome|genomic/i, label:'Genetic Data', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/race|ethnic|racial|ethnicity|nationality(?!_id)/i, label:'Racial/Ethnic Origin', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/religion|faith|church|mosque|synagogue|spiritual|belief/i, label:'Religious Belief', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/politi(?:c|cal)|party.member|union.member|trade.union/i, label:'Political Opinion', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/sexual.orient|sex.life|gender.identity|lgbtq/i, label:'Sexual Orientation', cat:'Art.9 Special', sev:'Critical'},
-  {pat:/criminal|offence|conviction|arrest|prison|sentence/i, label:'Criminal Record', cat:'Art.9 Special', sev:'Critical'},
-  // Direct identifiers
-  {pat:/\bemail\b|e.mail|email.addr/i, label:'Email Address', cat:'Direct Identifier', sev:'High'},
-  {pat:/\bphone\b|mobile|cell.num|tel(?:ephone)?|contact.num/i, label:'Phone Number', cat:'Direct Identifier', sev:'High'},
-  {pat:/\bssn\b|social.sec|national.id|nat.ins|nino\b/i, label:'National ID / SSN', cat:'Direct Identifier', sev:'Critical'},
-  {pat:/passport/i, label:'Passport Number', cat:'Direct Identifier', sev:'Critical'},
-  {pat:/\bdob\b|date.of.birth|birth.date|birthdate|birthday/i, label:'Date of Birth', cat:'Direct Identifier', sev:'High'},
-  {pat:/\biban\b|bank.acc|account.num|sort.code/i, label:'Bank/IBAN', cat:'Direct Identifier', sev:'Critical'},
-  {pat:/credit.card|card.num|cvv|pan\b/i, label:'Card Number', cat:'Direct Identifier', sev:'Critical'},
-  {pat:/\bip.addr|ip_addr|ipaddress/i, label:'IP Address', cat:'Direct Identifier', sev:'High'},
-  {pat:/\bfirst.name\b|forename|given.name/i, label:'First Name', cat:'Direct Identifier', sev:'High'},
-  {pat:/\blast.name\b|surname|family.name/i, label:'Last Name', cat:'Direct Identifier', sev:'High'},
-  {pat:/full.name|person.name|display.name|customer.name/i, label:'Full Name', cat:'Direct Identifier', sev:'High'},
-  // Indirect identifiers
-  {pat:/\baddress\b|street|postcode|zip.code|city|town\b/i, label:'Address', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/\bgender\b|\bsex\b/i, label:'Gender', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/\bage\b|age.group|age.band/i, label:'Age', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/location|latitude|longitude|gps|coord/i, label:'Location/GPS', cat:'Indirect Identifier', sev:'High'},
-  {pat:/user.?id|customer.?id|person.?id|employee.?id|staff.?id|worker.?id/i, label:'User/Person ID', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/login|username|user.name|alias\b/i, label:'Login/Username', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/salary|wage|income|pay.grade|compensation/i, label:'Salary/Income', cat:'Indirect Identifier', sev:'High'},
-  {pat:/photo|image|avatar|picture|portrait/i, label:'Photo/Image', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/device.?id|mac.addr|cookie|session.?id|tracking/i, label:'Device/Tracking ID', cat:'Indirect Identifier', sev:'Medium'},
-  {pat:/contract|tour.?id|vrid\b/i, label:'Contract/Tour ID', cat:'Indirect Identifier', sev:'Low'},
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+var HRULES=[
+  {pat:/health|medical|diagnos|disease|illness|patient|clinical|prescri|medication|treatment|symptom/i,label:'Health Data',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/biometric|fingerprint|retina|iris|facial.recog|face.id|voice.print/i,label:'Biometric Data',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/genetic|dna|rna|genome|genomic/i,label:'Genetic Data',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/race|ethnic|racial|ethnicity|nationality(?!_id)/i,label:'Racial/Ethnic Origin',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/religion|faith|church|mosque|synagogue|spiritual|belief/i,label:'Religious Belief',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/politi(?:c|cal)|party.member|union.member|trade.union/i,label:'Political Opinion',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/sexual.orient|sex.life|gender.identity|lgbtq/i,label:'Sexual Orientation',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/criminal|offence|conviction|arrest|prison|sentence/i,label:'Criminal Record',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/\bemail\b|e.mail|email.addr/i,label:'Email Address',cat:'Direct Identifier',sev:'High'},
+  {pat:/\bphone\b|mobile|cell.num|tel(?:ephone)?|contact.num/i,label:'Phone Number',cat:'Direct Identifier',sev:'High'},
+  {pat:/\bssn\b|social.sec|national.id|nat.ins|nino\b/i,label:'National ID / SSN',cat:'Direct Identifier',sev:'Critical'},
+  {pat:/passport/i,label:'Passport Number',cat:'Direct Identifier',sev:'Critical'},
+  {pat:/\bdob\b|date.of.birth|birth.date|birthdate|birthday/i,label:'Date of Birth',cat:'Direct Identifier',sev:'High'},
+  {pat:/\biban\b|bank.acc|account.num|sort.code/i,label:'Bank/IBAN',cat:'Direct Identifier',sev:'Critical'},
+  {pat:/credit.card|card.num|cvv|pan\b/i,label:'Card Number',cat:'Direct Identifier',sev:'Critical'},
+  {pat:/\bip.addr|ip_addr|ipaddress/i,label:'IP Address',cat:'Direct Identifier',sev:'High'},
+  {pat:/\bfirst.name\b|forename|given.name/i,label:'First Name',cat:'Direct Identifier',sev:'High'},
+  {pat:/\blast.name\b|surname|family.name/i,label:'Last Name',cat:'Direct Identifier',sev:'High'},
+  {pat:/full.name|person.name|display.name|customer.name/i,label:'Full Name',cat:'Direct Identifier',sev:'High'},
+  {pat:/\baddress\b|street|postcode|zip.code|city|town\b/i,label:'Address',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/\bgender\b|\bsex\b/i,label:'Gender',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/\bage\b|age.group|age.band/i,label:'Age',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/location|latitude|longitude|gps|coord/i,label:'Location/GPS',cat:'Indirect Identifier',sev:'High'},
+  {pat:/user.?id|customer.?id|person.?id|employee.?id|staff.?id|worker.?id/i,label:'User/Person ID',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/login|username|user.name|alias\b/i,label:'Login/Username',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/salary|wage|income|pay.grade|compensation/i,label:'Salary/Income',cat:'Indirect Identifier',sev:'High'},
+  {pat:/photo|image|avatar|picture|portrait/i,label:'Photo/Image',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/device.?id|mac.addr|cookie|session.?id|tracking/i,label:'Device/Tracking ID',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/contract|tour.?id|vrid\b/i,label:'Contract/Tour ID',cat:'Indirect Identifier',sev:'Low'}
 ];
-
-var VALUE_RULES = [
-  {pat:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/, label:'Email Value', cat:'Value Pattern', sev:'High'},
-  {pat:/^(?:\+?44|0)[\d\s\-]{9,13}$|^\+?[\d\s\-]{10,15}$/, label:'Phone Number', cat:'Value Pattern', sev:'High'},
-  {pat:/^[A-Z]{2}\d{6}[A-Z]$|^[A-Z]{1,2}\d{6,9}$/, label:'Passport-like ID', cat:'Value Pattern', sev:'Critical'},
-  {pat:/^[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}$/, label:'IBAN', cat:'Value Pattern', sev:'Critical'},
-  {pat:/^\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}$/, label:'Card Number', cat:'Value Pattern', sev:'Critical'},
-  {pat:/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, label:'IP Address', cat:'Value Pattern', sev:'High'},
-  {pat:/^-?\d{1,3}\.\d{3,},?\s*-?\d{1,3}\.\d{3,}$|^-?\d{2,3}\.\d+$/, label:'GPS Coordinate', cat:'Value Pattern', sev:'High'},
-  {pat:/^(?:19|20)\d{2}[-\/]\d{2}[-\/]\d{2}$|^\d{2}[-\/]\d{2}[-\/](?:19|20)\d{2}$/, label:'Date of Birth', cat:'Value Pattern', sev:'High'},
-  {pat:/^[A-Z]{2}\s?\d{6}\s?[A-Z]$/, label:'National Insurance No', cat:'Value Pattern', sev:'Critical'},
+var VRULES=[
+  {pat:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,label:'Email Value',cat:'Value Pattern',sev:'High'},
+  {pat:/^(?:\+?44|0)[\d\s\-]{9,13}$|^\+?[\d\s\-]{10,15}$/,label:'Phone Number',cat:'Value Pattern',sev:'High'},
+  {pat:/^[A-Z]{2}\d{6}[A-Z]$|^[A-Z]{1,2}\d{6,9}$/,label:'Passport-like ID',cat:'Value Pattern',sev:'Critical'},
+  {pat:/^[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}$/,label:'IBAN',cat:'Value Pattern',sev:'Critical'},
+  {pat:/^\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}$/,label:'Card Number',cat:'Value Pattern',sev:'Critical'},
+  {pat:/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,label:'IP Address',cat:'Value Pattern',sev:'High'},
+  {pat:/^-?\d{1,3}\.\d{3,}$/,label:'GPS Coordinate',cat:'Value Pattern',sev:'High'},
+  {pat:/^(?:19|20)\d{2}[-\/]\d{2}[-\/]\d{2}$|^\d{2}[-\/]\d{2}[-\/](?:19|20)\d{2}$/,label:'Date of Birth',cat:'Value Pattern',sev:'High'},
+  {pat:/^[A-Z]{2}\s?\d{6}\s?[A-Z]$/,label:'NI Number',cat:'Value Pattern',sev:'Critical'}
 ];
-
-var SEV_ORDER = {Critical:4,High:3,Medium:2,Low:1};
-var findings = [];
-var stats = {};
-var scanMeta = {};
-var chartInst = null;
-var sortCol = 0, sortAsc = true;
-
-// ─── File handling ──────────────────────────────────────────────────────────
-var dropZone = document.getElementById('dropZone');
-var fileInput = document.getElementById('fileInput');
-
-dropZone.addEventListener('dragover', function(e){e.preventDefault();dropZone.classList.add('over')});
-dropZone.addEventListener('dragleave', function(){dropZone.classList.remove('over')});
-dropZone.addEventListener('drop', function(e){
-  e.preventDefault();dropZone.classList.remove('over');
-  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', function(){
-  if(this.files.length) handleFile(this.files[0]);
-  this.value='';
-});
-
-function handleFile(file){
-  var ext = file.name.split('.').pop().toLowerCase();
-  toast('Reading '+file.name+' ('+Math.round(file.size/1024)+'KB)…');
-  var reader = new FileReader();
+var SO={Critical:4,High:3,Medium:2,Low:1};
+var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true;
+var dz=document.getElementById('dropZone'),fi=document.getElementById('fileInput');
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',function(){dz.classList.remove('over')});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)go(e.dataTransfer.files[0])});
+fi.addEventListener('change',function(){if(this.files.length)go(this.files[0]);this.value=''});
+function go(file){
+  var ext=file.name.split('.').pop().toLowerCase();
+  toast('Reading '+file.name+' ('+Math.round(file.size/1024)+'KB)...');
+  var r=new FileReader();
   if(ext==='xlsx'||ext==='xls'){
-    reader.onload = function(e){
+    r.onload=function(e){
       try{
-        var wb = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-        var ws = wb.Sheets[wb.SheetNames[0]];
-        var data = XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-        if(!data||!data.length){toast('Sheet appears empty');return;}
-        processRows(data, file.name, data[0].length+'×'+data.length);
+        var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var d=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        if(!d||!d.length){toast('Sheet appears empty');return;}
+        scan(d,file.name);
       }catch(err){toast('Excel error: '+err.message);}
     };
-    reader.readAsArrayBuffer(file);
+    r.readAsArrayBuffer(file);
   } else if(ext==='json'){
-    reader.onload = function(e){
+    r.onload=function(e){
       try{
-        var obj = JSON.parse(e.target.result);
-        var arr = Array.isArray(obj)?obj:[obj];
-        var keys = Object.keys(arr[0]||{});
-        var rows = [keys].concat(arr.map(function(r){return keys.map(function(k){return r[k]||''})}));
-        processRows(rows, file.name, rows[0].length+'×'+rows.length);
+        var o=JSON.parse(e.target.result);
+        var a=Array.isArray(o)?o:[o];
+        var k=Object.keys(a[0]||{});
+        scan([k].concat(a.map(function(x){return k.map(function(j){return x[j]||''})})),file.name);
       }catch(err){toast('JSON error: '+err.message);}
     };
-    reader.readAsText(file);
+    r.readAsText(file);
   } else {
-    // CSV / TSV / TXT
-    reader.onload = function(e){
-      var sep = ext==='tsv'?'\t':',';
-      if(ext==='txt'||ext==='csv'){
-        var line1 = e.target.result.split('\n')[0]||'';
-        if(line1.split('\t').length>line1.split(',').length) sep='\t';
-      }
-      try{
-        var rows = parseCSV(e.target.result, sep);
-        if(!rows.length){toast('File appears empty');return;}
-        processRows(rows, file.name, rows[0].length+'×'+rows.length);
-      }catch(err){toast('Parse error: '+err.message);}
+    r.onload=function(e){
+      var sep=ext==='tsv'?'\t':',';
+      if(ext==='txt'||ext==='csv'){var l=e.target.result.split('\n')[0]||'';if(l.split('\t').length>l.split(',').length)sep='\t';}
+      try{var rows=parseCSV(e.target.result,sep);if(!rows.length){toast('Empty file');return;}scan(rows,file.name);}
+      catch(err){toast('Parse error: '+err.message);}
     };
-    reader.readAsText(file);
+    r.readAsText(file);
   }
 }
-
-function parseCSV(text, sep){
-  var rows=[], row=[], cur='', inQ=false, i=0;
-  for(;i<text.length;i++){
-    var ch=text[i];
-    if(inQ){
-      if(ch==='"'&&text[i+1]==='"'){cur+='"';i++;}
-      else if(ch==='"'){inQ=false;}
-      else cur+=ch;
-    } else {
-      if(ch==='"'){inQ=true;}
-      else if(ch===sep){row.push(cur);cur='';}
-      else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur='';}
-      else if(ch!=='\r'){cur+=ch;}
-    }
-  }
-  if(cur||row.length){row.push(cur);rows.push(row);}
-  return rows;
+function parseCSV(t,s){
+  var rows=[],row=[],cur='',q=false,i=0;
+  for(;i<t.length;i++){var c=t[i];if(q){if(c==='"'&&t[i+1]==='"'){cur+='"';i++;}else if(c==='"'){q=false;}else cur+=c;}else{if(c==='"'){q=true;}else if(c===s){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else if(c!=='\r'){cur+=c;}}}
+  if(cur||row.length){row.push(cur);rows.push(row);}return rows;
 }
-
-// ─── Scan engine ───────────────────────────────────────────────────────────
-function processRows(rows, filename, dim){
-  if(!rows||rows.length<1){toast('No data found');return;}
-  var headers = rows[0].map(function(h){return String(h||'').trim()});
-  var dataRows = rows.slice(1).filter(function(r){return r.some(function(c){return String(c||'').trim()!==''})});
-  var total = dataRows.length;
-
-  findings = [];
-  stats = {critical:0,high:0,medium:0,low:0,art9:0,direct:0,indirect:0,valPat:0};
-
-  // Pass 1: header scan
-  headers.forEach(function(h, ci){
-    HEADER_RULES.forEach(function(rule){
+function scan(rows,fn){
+  if(!rows||rows.length<1){toast('No data');return;}
+  var hdr=rows[0].map(function(h){return String(h||'').trim()});
+  var dr=rows.slice(1).filter(function(r){return r.some(function(c){return String(c||'').trim()!==''})});
+  var tot=dr.length;
+  findings=[];stats={critical:0,high:0,medium:0,low:0};
+  hdr.forEach(function(h,i){
+    HRULES.forEach(function(rule){
       if(rule.pat.test(h)){
-        // sample up to 5 values
-        var samples=[];
-        for(var ri=0;ri<Math.min(dataRows.length,100)&&samples.length<5;ri++){
-          var v=String(dataRows[ri][ci]||'').trim();
-          if(v) samples.push(v);
-        }
-        var pct = calcPct(dataRows, ci);
-        findings.push({
-          field:h, colIdx:ci, cat:rule.cat, label:rule.label, sev:rule.sev,
-          samples:samples, pct:pct, source:'Header Match', rows:total,
-          affected:Math.round(total*pct/100)
-        });
+        var s=[];
+        for(var j=0;j<Math.min(dr.length,100)&&s.length<5;j++){var v=String(dr[j][i]||'').trim();if(v)s.push(v);}
+        var p=pct(dr,i);
+        findings.push({field:h,ci:i,cat:rule.cat,label:rule.label,sev:rule.sev,samp:s,pct:p,aff:Math.round(tot*p/100),tot:tot});
         stats[rule.sev.toLowerCase()]=(stats[rule.sev.toLowerCase()]||0)+1;
-        if(rule.cat==='Art.9 Special') stats.art9++;
-        else if(rule.cat==='Direct Identifier') stats.direct++;
-        else stats.indirect++;
       }
     });
   });
-
-  // Pass 2: value scan (sample up to 200 rows per column)
-  var valueHits = {};
-  VALUE_RULES.forEach(function(rule){
-    for(var ci=0;ci<headers.length;ci++){
-      var matchCount=0, samples=[];
-      for(var ri=0;ri<Math.min(dataRows.length,200);ri++){
-        var v=String(dataRows[ri][ci]||'').trim();
-        if(v&&rule.pat.test(v)){matchCount++;if(samples.length<5) samples.push(v);}
-      }
-      var sampleSize=Math.min(dataRows.length,200);
-      var matchRate=sampleSize>0?matchCount/sampleSize:0;
-      if(matchRate>=0.3){
-        var key=ci+'|'+rule.label;
-        if(!valueHits[key]){
-          valueHits[key]=true;
-          findings.push({
-            field:headers[ci], colIdx:ci, cat:'Value Pattern', label:rule.label, sev:rule.sev,
-            samples:samples, pct:Math.round(matchRate*100), source:'Value Pattern',
-            rows:total, affected:Math.round(total*matchRate)
-          });
-          stats[rule.sev.toLowerCase()]=(stats[rule.sev.toLowerCase()]||0)+1;
-          stats.valPat++;
-        }
-      }
+  var vh={};
+  VRULES.forEach(function(rule){
+    for(var i=0;i<hdr.length;i++){
+      var mc=0,s=[];
+      for(var j=0;j<Math.min(dr.length,200);j++){var v=String(dr[j][i]||'').trim();if(v&&rule.pat.test(v)){mc++;if(s.length<5)s.push(v);}}
+      var sz=Math.min(dr.length,200),rate=sz>0?mc/sz:0;
+      if(rate>=0.3){var k=i+'|'+rule.label;if(!vh[k]){vh[k]=true;findings.push({field:hdr[i],ci:i,cat:'Value Pattern',label:rule.label,sev:rule.sev,samp:s,pct:Math.round(rate*100),aff:Math.round(tot*rate),tot:tot});stats[rule.sev.toLowerCase()]=(stats[rule.sev.toLowerCase()]||0)+1;}}
     }
   });
-
-  // deduplicate: if same column already flagged by header, skip value pattern
   var seen={};
-  findings = findings.filter(function(f){
-    var k=f.colIdx+'|'+f.cat;
-    if(seen[k]) return false;
-    seen[k]=true; return true;
-  });
-
-  // Sort by severity desc
-  findings.sort(function(a,b){return (SEV_ORDER[b.sev]||0)-(SEV_ORDER[a.sev]||0)});
-
-  scanMeta = {filename:filename, dim:dim, total:total, headers:headers.length, ts:new Date().toLocaleString()};
-  renderResults();
+  findings=findings.filter(function(f){var k=f.ci+'|'+f.cat;if(seen[k])return false;seen[k]=true;return true;});
+  findings.sort(function(a,b){return(SO[b.sev]||0)-(SO[a.sev]||0)});
+  meta={fn:fn,tot:tot,cols:hdr.length,ts:new Date().toLocaleString()};
+  showResults();
 }
-
-function calcPct(rows, ci){
-  if(!rows.length) return 0;
-  var filled=rows.filter(function(r){return String(r[ci]||'').trim()!==''}).length;
-  return Math.round(filled/rows.length*100);
-}
-
-// ─── Render ────────────────────────────────────────────────────────────────
-function renderResults(){
+function pct(rows,i){if(!rows.length)return 0;return Math.round(rows.filter(function(r){return String(r[i]||'').trim()!==''}).length/rows.length*100);}
+function riskScore(){var s=0;findings.forEach(function(f){s+={Critical:20,High:12,Medium:6,Low:2}[f.sev]||0;});return Math.min(100,s);}
+function showResults(){
+  document.getElementById('uploadSection').style.display='none';
   document.getElementById('results').style.display='block';
-  document.getElementById('dropZone').style.display='none';
-  renderKPIs();
-  renderChart();
-  renderCats();
-  renderTable();
-  toast('Scan complete — '+findings.length+' findings in '+scanMeta.filename);
+  renderKPIs();renderChart();renderCats();renderTable();
+  toast('Scan complete - '+findings.length+' findings in '+meta.fn);
 }
-
 function renderKPIs(){
-  var riskScore = calcRisk();
-  var riskColor = riskScore>=80?'#f87171':riskScore>=60?'#fb923c':riskScore>=40?'#fbbf24':'#4ade80';
-  var el = document.getElementById('kpiCards');
-  el.innerHTML = kpiCard('Findings',findings.length,'fields detected','c-indigo')
-    + kpiCard('Critical',stats.critical||0,'Art.9 + direct IDs','c-red')
-    + kpiCard('High',stats.high||0,'direct identifiers','c-orange')
-    + kpiCard('Medium',(stats.medium||0),'indirect identifiers','c-yellow')
-    + kpiCard('Rows Scanned',scanMeta.total,'data records','c-blue')
-    + riskKPI(riskScore,riskColor);
+  var s=riskScore(),col=s>=80?'#f87171':s>=60?'#fb923c':s>=40?'#fbbf24':'#4ade80';
+  document.getElementById('kpiCards').innerHTML=
+    kc('Findings',findings.length,'fields detected','c-indigo')+
+    kc('Critical',stats.critical||0,'Art.9 + direct IDs','c-red')+
+    kc('High',stats.high||0,'direct identifiers','c-orange')+
+    kc('Medium',stats.medium||0,'indirect identifiers','c-yellow')+
+    kc('Rows Scanned',meta.tot,'data records','c-blue')+
+    '<div class="card"><div class="lbl">Risk Score</div><div class="val" style="color:'+col+'">'+s+'<span style="font-size:14px;color:#64748b">/100</span></div><div class="rbar"><div class="rfill" style="width:'+s+'%;background:'+col+'"></div></div></div>';
 }
-
-function kpiCard(label,val,sub,cls){
-  return '<div class="card"><div class="label">'+label+'</div><div class="val '+cls+'">'+val+'</div><div class="sub">'+sub+'</div></div>';
-}
-
-function riskKPI(score,color){
-  return '<div class="card"><div class="label">Risk Score</div><div class="val" style="color:'+color+'">'+score+'<span style="font-size:16px;color:#64748b">/100</span></div>'
-    +'<div class="risk-bar"><div class="risk-fill" style="width:'+score+'%;background:'+color+'"></div></div></div>';
-}
-
-function calcRisk(){
-  var s=0;
-  findings.forEach(function(f){
-    s+={Critical:20,High:12,Medium:6,Low:2}[f.sev]||0;
-  });
-  return Math.min(100,s);
-}
-
+function kc(l,v,s,c){return '<div class="card"><div class="lbl">'+l+'</div><div class="val '+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';}
 function renderChart(){
-  var ctx = document.getElementById('riskChart').getContext('2d');
-  if(chartInst) chartInst.destroy();
-  var score=calcRisk(), rest=100-score;
-  var color=score>=80?'#f87171':score>=60?'#fb923c':score>=40?'#fbbf24':'#4ade80';
-  chartInst=new Chart(ctx,{
-    type:'doughnut',
-    data:{datasets:[{data:[score,rest],backgroundColor:[color,'#1e293b'],borderWidth:0,cutout:'78%'}]},
-    options:{plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:800}}
-  });
-  var label=score>=80?'Critical Risk':score>=60?'High Risk':score>=40?'Medium Risk':'Low Risk';
-  document.getElementById('riskLabel').innerHTML='<strong style="color:'+color+'">'+label+'</strong><br><small>'+findings.length+' issues found</small>';
+  var ctx=document.getElementById('riskChart').getContext('2d');
+  if(chartInst)chartInst.destroy();
+  var s=riskScore(),col=s>=80?'#f87171':s>=60?'#fb923c':s>=40?'#fbbf24':'#4ade80';
+  chartInst=new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[s,100-s],backgroundColor:[col,'#1e293b'],borderWidth:0,cutout:'80%'}]},options:{plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:700}}});
+  var lbl=s>=80?'Critical Risk':s>=60?'High Risk':s>=40?'Medium Risk':'Low Risk';
+  document.getElementById('riskLabel').innerHTML='<strong style="color:'+col+'">'+lbl+'</strong><br><small>'+findings.length+' issues found</small>';
 }
-
 function renderCats(){
-  var bycat={};
-  findings.forEach(function(f){
-    if(!bycat[f.cat]) bycat[f.cat]=[]; bycat[f.cat].push(f);
+  var bc={};findings.forEach(function(f){if(!bc[f.cat])bc[f.cat]=[];bc[f.cat].push(f);});
+  var cs=['Art.9 Special','Direct Identifier','Indirect Identifier','Value Pattern'];
+  var cc={'Art.9 Special':'#a855f7','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80'};
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  cs.forEach(function(cat){
+    var items=bc[cat]||[];
+    h+='<div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #334155"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:'+cc[cat]+'">'+cat+'</span><span style="font-size:16px;font-weight:700;color:'+cc[cat]+'">'+items.length+'</span></div>';
+    h+=items.length?'<div>'+items.slice(0,5).map(function(f){return'<span class="pill">'+eh(f.field)+'</span>'}).join('')+'</div>':'<div style="font-size:11px;color:#374151">None detected</div>';
+    h+='</div>';
   });
-  var cats=['Art.9 Special','Direct Identifier','Indirect Identifier','Value Pattern'];
-  var colors={'Art.9 Special':'#a855f7','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80'};
-  var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-  cats.forEach(function(cat){
-    var items=bycat[cat]||[];
-    html+='<div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #334155">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:8px">'
-      +'<span style="font-size:12px;font-weight:600;color:'+colors[cat]+'">'+cat+'</span>'
-      +'<span style="font-size:18px;font-weight:700;color:'+colors[cat]+'">'+items.length+'</span></div>';
-    if(items.length){
-      html+='<div>'+items.slice(0,6).map(function(f){
-        return '<span class="pill">'+escH(f.field)+'</span>';
-      }).join('')+'</div>';
-    } else {
-      html+='<div style="font-size:11px;color:#374151">None detected</div>';
-    }
-    html+='</div>';
-  });
-  html+='</div>';
-  document.getElementById('catBody').innerHTML=html;
+  document.getElementById('catBody').innerHTML=h+'</div>';
 }
-
 function renderTable(){
-  var fSearch=(document.getElementById('fSearch').value||'').toLowerCase();
-  var fSev=document.getElementById('fSev').value;
-  var fCat=document.getElementById('fCat').value;
+  var fs=(document.getElementById('fSearch').value||'').toLowerCase();
+  var fv=document.getElementById('fSev').value,fc=document.getElementById('fCat').value;
   var rows=findings.filter(function(f){
-    if(fSearch&&!f.field.toLowerCase().includes(fSearch)&&!f.label.toLowerCase().includes(fSearch)) return false;
-    if(fSev&&f.sev!==fSev) return false;
-    if(fCat&&f.cat!==fCat) return false;
-    return true;
+    if(fs&&!f.field.toLowerCase().includes(fs)&&!f.label.toLowerCase().includes(fs))return false;
+    if(fv&&f.sev!==fv)return false;if(fc&&f.cat!==fc)return false;return true;
   });
-  if(!rows.length){
-    document.getElementById('tableWrap').innerHTML='<div class="empty">No findings match filters</div>';
-    return;
-  }
-  var cols=['Field','Category','Type','Severity','Filled %','Affected Rows','Sample Values'];
-  var html='<div style="overflow-x:auto"><table><thead><tr>';
-  cols.forEach(function(c,i){
-    html+='<th onclick="sortBy('+i+')" title="Sort">'+c+(sortCol===i?(sortAsc?' ↑':' ↓'):'')+'</th>';
+  if(!rows.length){document.getElementById('tableWrap').innerHTML='<div class="empty">No findings match filters</div>';return;}
+  var h='<div style="overflow-x:auto"><table><thead><tr>';
+  ['Field','Category','Type','Severity','Filled %','Affected Rows','Sample Values'].forEach(function(col,i){
+    h+='<th onclick="srt('+i+')" title="Sort">'+col+(sc===i?(sa?' &uarr;':' &darr;'):'')+'</th>';
   });
-  html+='</tr></thead><tbody>';
+  h+='</tr></thead><tbody>';
   rows.forEach(function(f){
-    var sc=sevClass(f.sev);
-    var samples=f.samples&&f.samples.length?f.samples.slice(0,3).map(function(s){
-      return '<span class="pill">'+escH(String(s).substring(0,40))+'</span>';
-    }).join(''):'<span style="color:#4b5563">—</span>';
-    html+='<tr>'
-      +'<td style="font-weight:600;color:#e2e8f0;font-family:monospace">'+escH(f.field)+'</td>'
-      +'<td><span class="badge badge-'+catClass(f.cat)+'">'+f.cat+'</span></td>'
-      +'<td style="color:#94a3b8">'+escH(f.label)+'</td>'
-      +'<td><span class="badge badge-'+sc+'">'+f.sev+'</span></td>'
-      +'<td class="col-c">'+f.pct+'%</td>'
-      +'<td class="col-c">'+f.affected+'</td>'
-      +'<td>'+samples+'</td>'
-      +'</tr>';
+    var s2=f.sev==='Critical'?'bc':f.sev==='High'?'bh':f.sev==='Medium'?'bm':'bl';
+    var c2=f.cat==='Art.9 Special'?'ba':f.cat==='Direct Identifier'?'bd':f.cat==='Indirect Identifier'?'bi':'bv';
+    var sv=f.samp&&f.samp.length?f.samp.slice(0,3).map(function(x){return'<span class="pill">'+eh(String(x).substring(0,40))+'</span>'}).join(''):'<span style="color:#4b5563">-</span>';
+    h+='<tr><td style="font-weight:600;font-family:monospace;color:#e2e8f0">'+eh(f.field)+'</td><td><span class="b2 '+c2+'">'+f.cat+'</span></td><td style="color:#94a3b8">'+eh(f.label)+'</td><td><span class="b2 '+s2+'">'+f.sev+'</span></td><td style="text-align:center">'+f.pct+'%</td><td style="text-align:center">'+f.aff+'</td><td>'+sv+'</td></tr>';
   });
-  html+='</tbody></table></div>';
-  document.getElementById('tableWrap').innerHTML=html;
+  document.getElementById('tableWrap').innerHTML=h+'</tbody></table></div>';
 }
-
-function sevClass(s){return s==='Critical'?'crit':s==='High'?'high':s==='Medium'?'med':'low'}
-function catClass(c){return c==='Art.9 Special'?'art9':c==='Direct Identifier'?'direct':'indirect'}
-
-function sortBy(col){
-  if(sortCol===col) sortAsc=!sortAsc; else {sortCol=col;sortAsc=true;}
-  var keys=['field','cat','label','sev','pct','affected','samples'];
-  findings.sort(function(a,b){
-    var av=a[keys[col]],bv=b[keys[col]];
-    if(col===3){av=SEV_ORDER[av]||0;bv=SEV_ORDER[bv]||0;}
-    if(av<bv) return sortAsc?-1:1;
-    if(av>bv) return sortAsc?1:-1;
-    return 0;
-  });
+function srt(col){
+  if(sc===col)sa=!sa;else{sc=col;sa=true;}
+  var ks=['field','cat','label','sev','pct','aff','samp'];
+  findings.sort(function(a,b){var av=a[ks[col]],bv=b[ks[col]];if(col===3){av=SO[av]||0;bv=SO[bv]||0;}if(av<bv)return sa?-1:1;if(av>bv)return sa?1:-1;return 0;});
   renderTable();
 }
-
-function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function resetScan(){
-  findings=[];stats={};scanMeta={};
+  findings=[];stats={};meta={};
   document.getElementById('results').style.display='none';
-  document.getElementById('dropZone').style.display='block';
-  document.getElementById('kpiCards').innerHTML='';
-  document.getElementById('catBody').innerHTML='';
-  document.getElementById('tableWrap').innerHTML='';
-  fileInput.value='';
-  if(chartInst){chartInst.destroy();chartInst=null;}
+  document.getElementById('uploadSection').style.display='block';
+  document.getElementById('kpiCards').innerHTML='';document.getElementById('catBody').innerHTML='';document.getElementById('tableWrap').innerHTML='';
+  fi.value='';if(chartInst){chartInst.destroy();chartInst=null;}
 }
-
-function toast(msg,dur){
-  var el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},dur||4000);
-}
-
+function toast(msg,dur){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},dur||4000);}
 function exportReport(){
-  var lines=['<html><head><meta charset=UTF-8><title>GDPR Scan Report</title>'
-    +'<style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px}'
-    +'h1{color:#4f46e5}table{width:100%;border-collapse:collapse;margin-top:16px}'
-    +'th{background:#4f46e5;color:#fff;padding:8px 12px;text-align:left}'
-    +'td{padding:8px 12px;border-bottom:1px solid #e5e7eb}'
-    +'tr:nth-child(even){background:#f9fafb}'
-    +'.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}'
-    +'</style></head><body>'
-    +'<h1>GDPR Compliance Scan Report</h1>'
-    +'<p>File: <strong>'+escH(scanMeta.filename)+'</strong> &nbsp;|&nbsp; '
-    +'Scanned: '+scanMeta.ts+'</p>'
-    +'<p>Rows: '+scanMeta.total+' &nbsp;|&nbsp; Columns: '+scanMeta.headers+' &nbsp;|&nbsp; Findings: '+findings.length+'</p>'
-    +'<table><thead><tr><th>Field</th><th>Category</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>'];
-  findings.forEach(function(f){
-    var sc=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';
-    lines.push('<tr><td><code>'+escH(f.field)+'</code></td><td>'+escH(f.cat)+'</td><td>'+escH(f.label)+'</td>'
-      +'<td class="'+sc+'">'+f.sev+'</td><td>'+f.pct+'%</td><td>'+f.affected+'</td></tr>');
-  });
-  lines.push('</tbody></table></body></html>');
-  var blob=new Blob([lines.join('')],{type:'text/html'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='GDPR_Report_'+scanMeta.filename.replace(/\.[^.]+$/,'')+'_'+new Date().toISOString().slice(0,10)+'.html';
-  a.click();
+  var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><table><thead><tr><th>Field</th><th>Category</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
+  findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+f.pct+'%</td><td>'+f.aff+'</td></tr>';});
+  h+='</tbody></table></body></html>';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='GDPR_Report_'+meta.fn.replace(/\.[^.]+$/,'')+'_'+new Date().toISOString().slice(0,10)+'.html';a.click();
 }
 </script>
 </body>
