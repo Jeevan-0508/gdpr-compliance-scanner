@@ -16,7 +16,7 @@ No signup. No server. No data ever leaves your browser.
 
 <p align="center">
   <img src="screenshots/home.png" alt="GDPR Compliance Scanner — home page" width="800"><br><br>
-  <img src="screenshots/results.png" alt="GDPR Compliance Scanner — findings dashboard" width="800">
+  <img src="screenshots/scanner.png" alt="GDPR Compliance Scanner — upload screen" width="800">
 </p>
 
 ## The problem
