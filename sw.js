@@ -1,4 +1,4 @@
-const CACHE = 'gdpr-scanner-v1';
+const CACHE = 'gdpr-scanner-v2';
 const ASSETS = ['./gdpr_scanner.html', './manifest.json'];
 
 self.addEventListener('install', e => {

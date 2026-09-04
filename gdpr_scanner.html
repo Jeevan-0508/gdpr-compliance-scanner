@@ -147,7 +147,8 @@ tr:hover td{background:#1e293b55}
 .bc{background:#450a0a;color:#fca5a5}.bh{background:#431407;color:#fdba74}
 .bm{background:#422006;color:#fde68a}.bl{background:#052e16;color:#86efac}
 .ba{background:#3b0764;color:#e9d5ff}.bd{background:#1e1b4b;color:#a5b4fc}
-.bi{background:#0c2340;color:#7dd3fc}.bv{background:#052e16;color:#86efac}
+.bi{background:#0c2340;color:#7dd3fc}.bv{background:#052e16;color:#86efac}
+.b10{background:#500724;color:#fbcfe8}.bret{background:#422006;color:#fde68a}
 .pill{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;background:#0f1117;color:#64748b;margin:1px}
 .frow{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#161b27;border-bottom:1px solid #334155}
 .frow select,.frow input{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:6px 10px;font-size:12px}
@@ -264,8 +265,9 @@ tr:hover td{background:#1e293b55}
       <p>Drag &amp; drop your file here</p>
       <p class="hint">or</p>
       <button class="btn btn-pri btn-sm" style="margin:10px auto 0" onclick="document.getElementById('fileInput').click()">Browse File</button>
-      <p class="hint" style="margin-top:10px">CSV &nbsp;|&nbsp; XLSX &nbsp;|&nbsp; XLS &nbsp;|&nbsp; TSV &nbsp;|&nbsp; JSON &nbsp;|&nbsp; TXT</p>
-      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv,.json,.txt">
+      <p class="hint" style="margin-top:10px"><strong>Tabular</strong> &nbsp;CSV &middot; TSV &middot; XLSX &middot; XLS &middot; XLSM &middot; ODS &middot; JSON<br><strong>Documents</strong> &nbsp;PDF &middot; DOCX &middot; PPTX &middot; ODT &middot; XML &middot; HTML &middot; TXT &middot; MD &middot; LOG<br><strong>Images (OCR)</strong> &nbsp;PNG &middot; JPG &middot; WEBP &middot; BMP &middot; TIFF</p>
+      <p class="hint" style="margin-top:6px;color:#64748b">Every sheet in a workbook is scanned, not just the first. PDF and image reading downloads its engine on first use.</p>
+      <input type="file" id="fileInput" accept=".csv,.tsv,.txt,.md,.log,.json,.xlsx,.xls,.xlsm,.xlsb,.ods,.pdf,.docx,.dotx,.pptx,.odt,.xml,.html,.htm,.png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff,.gif">
     </div>
     <div style="text-align:center;padding-bottom:20px">
       <button class="btn btn-sec btn-sm" onclick="showPage('home')">&#8592; Back to guide</button>
@@ -273,6 +275,7 @@ tr:hover td{background:#1e293b55}
   </div>
   <div id="results">
     <div class="cards" id="kpiCards"></div>
+    <div id="scanInfo" style="font-size:12px;color:#94a3b8;background:#0f1117;border:1px solid #334155;border-radius:8px;padding:10px 14px;margin-bottom:14px"></div>
     <div class="two-col">
       <div class="panel" style="margin:0">
         <div class="panel-hdr"><h3>Risk Score</h3></div>
@@ -297,7 +300,7 @@ tr:hover td{background:#1e293b55}
       <div class="frow">
         <input type="text" id="fSearch" placeholder="Search field name..." oninput="renderTable()">
         <select id="fSev" onchange="renderTable()"><option value="">All Severity</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
-        <select id="fCat" onchange="renderTable()"><option value="">All Categories</option><option>Art.9 Special</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option></select>
+        <select id="fCat" onchange="renderTable()"><option value="">All Categories</option><option>Art.9 Special</option><option>Art.10 Criminal</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option><option>Retention</option></select>
       </div>
       <div id="tableWrap"></div>
     </div>
@@ -320,7 +323,10 @@ var HRULES=[
   {pat:/religion|faith|church|mosque|synagogue|spiritual|belief/i,label:'Religious Belief',cat:'Art.9 Special',sev:'Critical'},
   {pat:/politi(?:c|cal)|party.member|union.member|trade.union/i,label:'Political Opinion',cat:'Art.9 Special',sev:'Critical'},
   {pat:/sexual.orient|sex.life|gender.identity|lgbtq/i,label:'Sexual Orientation',cat:'Art.9 Special',sev:'Critical'},
-  {pat:/criminal|offence|conviction|arrest|prison|sentence/i,label:'Criminal Record',cat:'Art.9 Special',sev:'Critical'},
+  {pat:/suspect|bad.?actor|perpetrat|accused|alleged|allegation|\bfraud|theft|stolen|pilferage|collusion|misconduct|malpractic|wrongdoing/i,label:'Criminal Allegation',cat:'Art.10 Criminal',sev:'Critical'},
+  {pat:/\bmo\b|modus.?operandi|offen[cs]e.?type|crime.?type|violation.?type/i,label:'Offence Type / MO',cat:'Art.10 Criminal',sev:'Critical'},
+  {pat:/investigat|disciplinar|ethics|\bbce\b|\bfir\b|case.?(?:id|no|num|ref|status)|grievance|whistle/i,label:'Investigation / Case Record',cat:'Art.10 Criminal',sev:'Critical'},
+  {pat:/criminal|offence|conviction|arrest|prison|sentence|prosecut|\bcourt\b|police/i,label:'Criminal Record',cat:'Art.10 Criminal',sev:'Critical'},
   {pat:/\bemail\b|e.mail|email.addr/i,label:'Email Address',cat:'Direct Identifier',sev:'High'},
   {pat:/\bphone\b|mobile|cell.num|tel(?:ephone)?|contact.num/i,label:'Phone Number',cat:'Direct Identifier',sev:'High'},
   {pat:/\bssn\b|social.sec|national.id|nat.ins|nino\b/i,label:'National ID / SSN',cat:'Direct Identifier',sev:'Critical'},
@@ -341,7 +347,10 @@ var HRULES=[
   {pat:/salary|wage|income|pay.grade|compensation/i,label:'Salary/Income',cat:'Indirect Identifier',sev:'High'},
   {pat:/photo|image|avatar|picture|portrait/i,label:'Photo/Image',cat:'Indirect Identifier',sev:'Medium'},
   {pat:/device.?id|mac.addr|cookie|session.?id|tracking/i,label:'Device/Tracking ID',cat:'Indirect Identifier',sev:'Medium'},
-  {pat:/contract|tour.?id|vrid\b/i,label:'Contract/Tour ID',cat:'Indirect Identifier',sev:'Low'}
+  {pat:/contract|tour.?id|vrid\b/i,label:'Contract/Tour ID',cat:'Indirect Identifier',sev:'Low'},
+  {pat:/shared.?by|identified.?by|reported.?by|raised.?by|escalated.?by|created.?by|modified.?by|assignee|investigator|approver|\bowner\b|manager|supervisor/i,label:'Named Staff Member',cat:'Direct Identifier',sev:'High'},
+  {pat:/tenure|length.?of.?service|hire.?date|joining.?date|termination|employment|work.?set.?up|\bshift\b|roster|department|job.?title|designation|pay.?grade|\bgrade\b/i,label:'Employment / HR Data',cat:'Indirect Identifier',sev:'Medium'},
+  {pat:/performance|appraisal|\bwarning\b|attrition|absente|sick.?leave/i,label:'Performance / Absence Data',cat:'Indirect Identifier',sev:'High'}
 ];
 var VRULES=[
   {pat:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,label:'Email Value',cat:'Value Pattern',sev:'High'},
@@ -354,87 +363,273 @@ var VRULES=[
   {pat:/^(?:19|20)\d{2}[-\/]\d{2}[-\/]\d{2}$|^\d{2}[-\/]\d{2}[-\/](?:19|20)\d{2}$/,label:'Date of Birth',cat:'Value Pattern',sev:'High'},
   {pat:/^[A-Z]{2}\s?\d{6}\s?[A-Z]$/,label:'NI Number',cat:'Value Pattern',sev:'Critical'}
 ];
+// Unanchored variants used for free-text documents (PDF / Word / OCR / plain text)
+var DRULES=[
+  {pat:/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,label:'Email Address',sev:'High'},
+  {pat:/\+\d{1,3}[\s.\-]?\d{3,5}[\s.\-]?\d{3,4}[\s.\-]?\d{0,4}|\b\d{3}[\s.\-]\d{3}[\s.\-]\d{4}\b/g,label:'Phone Number',sev:'High'},
+  {pat:/\b[A-Z]{2}\d{2}[A-Z0-9]{11,26}\b/g,label:'IBAN',sev:'Critical'},
+  {pat:/\b(?:\d{4}[\s\-]){3}\d{4}\b/g,label:'Card Number',sev:'Critical'},
+  {pat:/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,label:'IP Address',sev:'High'},
+  {pat:/-?\d{1,3}\.\d{4,}\s?,\s?-?\d{1,3}\.\d{4,}/g,label:'GPS Coordinate',sev:'High'},
+  {pat:/\b(?:19|20)\d{2}[-\/]\d{1,2}[-\/]\d{1,2}\b|\b\d{1,2}[-\/]\d{1,2}[-\/](?:19|20)\d{2}\b/g,label:'Date',sev:'Medium'},
+  {pat:/\b[A-Z]{2}\s?\d{6}\s?[A-Z]\b/g,label:'NI Number',sev:'Critical'},
+  {pat:/\b[A-Z]{1,2}\d{6,8}\b/g,label:'Passport-like ID',sev:'High'}
+];
 var SO={Critical:4,High:3,Medium:2,Low:1};
-var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true;
+var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true,seenKeys={};
+var PDFJS_URL='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+var PDFJS_WORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+var TESS_URL='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
 var dz=document.getElementById('dropZone'),fi=document.getElementById('fileInput');
 dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('over')});
 dz.addEventListener('dragleave',function(){dz.classList.remove('over')});
 dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)go(e.dataTransfer.files[0])});
 fi.addEventListener('change',function(){if(this.files.length)go(this.files[0]);this.value=''});
+function loadScript(src){
+  return new Promise(function(res,rej){
+    if(document.querySelector('script[data-l="'+src+'"]'))return res();
+    var el=document.createElement('script');el.src=src;el.setAttribute('data-l',src);
+    el.onload=function(){res()};
+    el.onerror=function(){rej(new Error('Could not load the reader for this format - an internet connection is needed the first time'))};
+    document.head.appendChild(el);
+  });
+}
+function zipEntries(buf){
+  var dv=new DataView(buf),n=buf.byteLength,eocd=-1;
+  for(var i=n-22;i>=0&&i>n-65558;i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}}
+  if(eocd<0)throw new Error('File is not a valid Office/zip container');
+  var cnt=dv.getUint16(eocd+10,true),p=dv.getUint32(eocd+16,true),out=[];
+  for(var k=0;k<cnt;k++){
+    if(dv.getUint32(p,true)!==0x02014b50)break;
+    var nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+    out.push({name:new TextDecoder().decode(new Uint8Array(buf,p+46,nl)),
+              method:dv.getUint16(p+10,true),csize:dv.getUint32(p+20,true),lho:dv.getUint32(p+42,true)});
+    p+=46+nl+el+cl;
+  }
+  return out;
+}
+function zipRead(buf,e){
+  var dv=new DataView(buf);
+  if(dv.getUint32(e.lho,true)!==0x04034b50)return Promise.reject(new Error('Corrupt zip entry: '+e.name));
+  var start=e.lho+30+dv.getUint16(e.lho+26,true)+dv.getUint16(e.lho+28,true);
+  var data=new Uint8Array(buf,start,e.csize);
+  if(e.method===0)return Promise.resolve(data);
+  if(typeof DecompressionStream==='undefined')return Promise.reject(new Error('This browser cannot open Office files - use Chrome or Edge 103+'));
+  return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()
+    .then(function(a){return new Uint8Array(a)});
+}
+function xmlText(x){
+  return x.replace(/<\/(?:w:p|a:p|w:tr|text:p)>/g,'\n').replace(/<[^>]*>/g,' ')
+          .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&')
+          .replace(/[ \t]+/g,' ');
+}
+function officeText(buf,re){
+  var es=zipEntries(buf).filter(function(e){return re.test(e.name)});
+  if(!es.length)throw new Error('No readable document parts inside this file');
+  return es.reduce(function(pr,e){
+    return pr.then(function(acc){return zipRead(buf,e).then(function(u){return acc+'\n'+xmlText(new TextDecoder().decode(u))})});
+  },Promise.resolve(''));
+}
+function pdfText(buf){
+  return loadScript(PDFJS_URL).then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+    return pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  }).then(function(doc){
+    var chain=Promise.resolve(''),n=Math.min(doc.numPages,300);
+    for(var i=1;i<=n;i++)(function(pn){
+      chain=chain.then(function(acc){
+        return doc.getPage(pn).then(function(pg){return pg.getTextContent()})
+          .then(function(tc){return acc+'\n'+tc.items.map(function(it){return it.str}).join(' ')});
+      });
+    })(i);
+    return chain.then(function(t){
+      if(t.replace(/\s/g,'').length<20)throw new Error('This PDF has no text layer - it is a scan. Export the pages as PNG/JPG and upload those for OCR.');
+      return t;
+    });
+  });
+}
+function ocrText(file){
+  return loadScript(TESS_URL).then(function(){
+    toast('Running OCR on '+file.name+' - this can take 20-60s...',90000);
+    return Tesseract.recognize(file,'eng');
+  }).then(function(r){return r.data.text});
+}
 function go(file){
   var ext=file.name.split('.').pop().toLowerCase();
   toast('Reading '+file.name+' ('+Math.round(file.size/1024)+'KB)...');
-  var r=new FileReader();
-  if(ext==='xlsx'||ext==='xls'){
-    r.onload=function(e){
-      try{
-        var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-        var ws=wb.Sheets[wb.SheetNames[0]];
-        var d=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-        if(!d||!d.length){toast('Sheet appears empty');return;}
-        scan(d,file.name);
-      }catch(err){toast('Excel error: '+err.message);}
-    };
-    r.readAsArrayBuffer(file);
+  var fail=function(err){toast((err&&err.message)||String(err),8000);};
+  var read=function(as){
+    return new Promise(function(res,rej){
+      var r=new FileReader();
+      r.onerror=function(){rej(new Error('Could not read the file'))};
+      r.onload=function(e){res(e.target.result)};
+      if(as==='buf')r.readAsArrayBuffer(file);else r.readAsText(file);
+    });
+  };
+  var SPREAD={xlsx:1,xls:1,xlsm:1,xlsb:1,ods:1},IMG={png:1,jpg:1,jpeg:1,webp:1,bmp:1,tif:1,tiff:1,gif:1};
+
+  if(SPREAD[ext]){
+    read('buf').then(function(b){
+      var wb=XLSX.read(new Uint8Array(b),{type:'array',cellDates:true});
+      var sheets=wb.SheetNames.map(function(n){
+        return {name:n,rows:XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:''})};
+      });
+      scanWorkbook(sheets,file.name);
+    }).catch(fail);
+  } else if(ext==='pdf'){
+    read('buf').then(pdfText).then(function(t){scanText(t,file.name,'PDF text')}).catch(fail);
+  } else if(ext==='docx'||ext==='dotx'){
+    read('buf').then(function(b){return officeText(b,/^word\/(document|header\d*|footer\d*|footnotes|endnotes|comments)\.xml$/)})
+      .then(function(t){scanText(t,file.name,'Word document')}).catch(fail);
+  } else if(ext==='pptx'){
+    read('buf').then(function(b){return officeText(b,/^ppt\/(slides|notesSlides)\/[^\/]+\.xml$/)})
+      .then(function(t){scanText(t,file.name,'Slides')}).catch(fail);
+  } else if(ext==='odt'){
+    read('buf').then(function(b){return officeText(b,/^content\.xml$/)})
+      .then(function(t){scanText(t,file.name,'Document')}).catch(fail);
+  } else if(IMG[ext]){
+    ocrText(file).then(function(t){
+      if(t.replace(/\s/g,'').length<10)throw new Error('OCR found no readable text in this image');
+      scanText(t,file.name,'Image OCR');
+    }).catch(fail);
   } else if(ext==='json'){
-    r.onload=function(e){
-      try{
-        var o=JSON.parse(e.target.result);
-        var a=Array.isArray(o)?o:[o];
-        var k=Object.keys(a[0]||{});
-        scan([k].concat(a.map(function(x){return k.map(function(j){return x[j]||''})})),file.name);
-      }catch(err){toast('JSON error: '+err.message);}
-    };
-    r.readAsText(file);
+    read('txt').then(function(t){
+      var o=JSON.parse(t),a=Array.isArray(o)?o:(Array.isArray(o.data)?o.data:[o]);
+      if(!a.length)throw new Error('JSON contains no records');
+      if(typeof a[0]!=='object'||a[0]===null)return scanText(t,file.name,'JSON text');
+      var keys={};a.slice(0,500).forEach(function(x){Object.keys(flat(x)).forEach(function(k){keys[k]=1})});
+      var k=Object.keys(keys);
+      scanWorkbook([{name:'',rows:[k].concat(a.map(function(x){var f=flat(x);return k.map(function(j){return f[j]==null?'':f[j]})}))}],file.name);
+    }).catch(fail);
+  } else if(ext==='xml'||ext==='html'||ext==='htm'){
+    read('txt').then(function(t){scanText(xmlText(t),file.name,'Markup')}).catch(fail);
   } else {
-    r.onload=function(e){
+    read('txt').then(function(t){
       var sep=ext==='tsv'?'\t':',';
-      if(ext==='txt'||ext==='csv'){var l=e.target.result.split('\n')[0]||'';if(l.split('\t').length>l.split(',').length)sep='\t';}
-      try{var rows=parseCSV(e.target.result,sep);if(!rows.length){toast('Empty file');return;}scan(rows,file.name);}
-      catch(err){toast('Parse error: '+err.message);}
-    };
-    r.readAsText(file);
+      var l=t.split('\n')[0]||'';
+      if(ext!=='tsv'){
+        var counts=[[',',l.split(',').length],['\t',l.split('\t').length],[';',l.split(';').length],['|',l.split('|').length]];
+        counts.sort(function(a,b){return b[1]-a[1]});
+        sep=counts[0][0];
+        if(counts[0][1]<2){scanText(t,file.name,'Plain text');return;}
+      }
+      var rows=parseCSV(t,sep);
+      if(!rows.length)throw new Error('File is empty');
+      scanWorkbook([{name:'',rows:rows}],file.name);
+    }).catch(fail);
   }
+}
+function flat(o,pre,out){
+  out=out||{};pre=pre||'';
+  Object.keys(o||{}).forEach(function(k){
+    var v=o[k],key=pre?pre+'.'+k:k;
+    if(v&&typeof v==='object'&&!Array.isArray(v))flat(v,key,out);
+    else out[key]=Array.isArray(v)?v.join('; '):v;
+  });
+  return out;
 }
 function parseCSV(t,s){
   var rows=[],row=[],cur='',q=false,i=0;
   for(;i<t.length;i++){var c=t[i];if(q){if(c==='"'&&t[i+1]==='"'){cur+='"';i++;}else if(c==='"'){q=false;}else cur+=c;}else{if(c==='"'){q=true;}else if(c===s){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else if(c!=='\r'){cur+=c;}}}
   if(cur||row.length){row.push(cur);rows.push(row);}return rows;
 }
-function scan(rows,fn){
-  if(!rows||rows.length<1){toast('No data');return;}
-  var hdr=rows[0].map(function(h){return String(h||'').trim()});
-  var dr=rows.slice(1).filter(function(r){return r.some(function(c){return String(c||'').trim()!==''})});
-  var tot=dr.length;
-  findings=[];stats={critical:0,high:0,medium:0,low:0};
-  hdr.forEach(function(h,i){
-    HRULES.forEach(function(rule){
-      if(rule.pat.test(h)){
-        var s=[];
-        for(var j=0;j<Math.min(dr.length,100)&&s.length<5;j++){var v=String(dr[j][i]||'').trim();if(v)s.push(v);}
-        var p=pct(dr,i);
-        findings.push({field:h,ci:i,cat:rule.cat,label:rule.label,sev:rule.sev,samp:s,pct:p,aff:Math.round(tot*p/100),tot:tot});
-        stats[rule.sev.toLowerCase()]=(stats[rule.sev.toLowerCase()]||0)+1;
-      }
-    });
+function real(v){
+  v=String(v==null?'':v).trim();
+  return v!==''&&!/^(na|n\/a|n\.a\.?|null|nil|none|-{1,2}|#n\/a|#null!|unknown|tbd|blank|not applicable)$/i.test(v);
+}
+function asDate(v){
+  if(v instanceof Date)return isNaN(v.getTime())?0:v.getTime();
+  var t=String(v==null?'':v).trim();
+  if(!/(?:19|20)\d{2}/.test(t))return 0;
+  var p=Date.parse(t);
+  return isNaN(p)?0:p;
+}
+function add(f){
+  var k=(f.sheet||'')+'|'+f.ci+'|'+f.label;
+  if(seenKeys[k])return;
+  seenKeys[k]=1;
+  findings.push(f);
+  stats[f.sev.toLowerCase()]=(stats[f.sev.toLowerCase()]||0)+1;
+}
+function uniq(a){var o={},r=[];a.forEach(function(x){if(!o[x]){o[x]=1;r.push(x)}});return r;}
+function scan(rows,fn){scanWorkbook([{name:'',rows:rows}],fn);}
+function scanWorkbook(sheets,fn){
+  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};
+  var tot=0,cols=0,done=[],skipped=[];
+  sheets.forEach(function(sh){
+    var rows=sh.rows||[];
+    var hdr=(rows[0]||[]).map(function(h){return String(h==null?'':h).trim()});
+    var dr=rows.slice(1).filter(function(r){return r.some(function(c){return String(c==null?'':c).trim()!==''})});
+    if(!hdr.some(function(h){return h!==''})||!dr.length){skipped.push(sh.name||'(sheet)');return;}
+    done.push(sh.name||'(single sheet)');
+    tot+=dr.length;cols+=hdr.length;
+    scanSheet(sh.name,hdr,dr);
   });
-  var vh={};
-  VRULES.forEach(function(rule){
-    for(var i=0;i<hdr.length;i++){
-      var mc=0,s=[];
-      for(var j=0;j<Math.min(dr.length,200);j++){var v=String(dr[j][i]||'').trim();if(v&&rule.pat.test(v)){mc++;if(s.length<5)s.push(v);}}
-      var sz=Math.min(dr.length,200),rate=sz>0?mc/sz:0;
-      if(rate>=0.3){var k=i+'|'+rule.label;if(!vh[k]){vh[k]=true;findings.push({field:hdr[i],ci:i,cat:'Value Pattern',label:rule.label,sev:rule.sev,samp:s,pct:Math.round(rate*100),aff:Math.round(tot*rate),tot:tot});stats[rule.sev.toLowerCase()]=(stats[rule.sev.toLowerCase()]||0)+1;}}
-    }
-  });
-  var seen={};
-  findings=findings.filter(function(f){var k=f.ci+'|'+f.cat;if(seen[k])return false;seen[k]=true;return true;});
+  if(!done.length){toast('No readable rows found in '+fn,7000);return;}
   findings.sort(function(a,b){return(SO[b.sev]||0)-(SO[a.sev]||0)});
-  meta={fn:fn,tot:tot,cols:hdr.length,ts:new Date().toLocaleString()};
+  meta={fn:fn,tot:tot,cols:cols,mode:'table',sheets:done,skipped:skipped,ts:new Date().toLocaleString()};
   showResults();
 }
-function pct(rows,i){if(!rows.length)return 0;return Math.round(rows.filter(function(r){return String(r[i]||'').trim()!==''}).length/rows.length*100);}
-function riskScore(){var s=0;findings.forEach(function(f){s+={Critical:20,High:12,Medium:6,Low:2}[f.sev]||0;});return Math.min(100,s);}
+function scanSheet(sheet,hdr,dr){
+  var tot=dr.length,cap=Math.min(dr.length,500);
+  hdr.forEach(function(h,i){
+    if(!h)return;
+    HRULES.forEach(function(rule){
+      if(!rule.pat.test(h))return;
+      var s=[];
+      for(var j=0;j<cap&&s.length<5;j++){var v=String(dr[j][i]==null?'':dr[j][i]).trim();if(real(v))s.push(v);}
+      var p=pct(dr,i);
+      add({sheet:sheet,field:h,ci:i,cat:rule.cat,label:rule.label,sev:rule.sev,samp:s,pct:p,aff:Math.round(tot*p/100),tot:tot});
+    });
+  });
+  VRULES.forEach(function(rule){
+    for(var i=0;i<hdr.length;i++){
+      var mc=0,s=[],n=0;
+      for(var j=0;j<Math.min(dr.length,200);j++){
+        var v=String(dr[j][i]==null?'':dr[j][i]).trim();
+        if(!real(v))continue;
+        n++;
+        if(rule.pat.test(v)){mc++;if(s.length<5)s.push(v);}
+      }
+      var rate=n>0?mc/n:0;
+      if(n>=5&&rate>=0.3)add({sheet:sheet,field:hdr[i]||('col '+(i+1)),ci:i,cat:'Value Pattern',label:rule.label,sev:rule.sev,samp:s,pct:Math.round(rate*100),aff:Math.round(tot*rate),tot:tot});
+    }
+  });
+  hdr.forEach(function(h,i){
+    if(!/date|\bdob\b|timestamp|\bday\b|\bmonth\b|\byear\b/i.test(h))return;
+    var newest=0,n=0;
+    for(var j=0;j<cap;j++){var t=asDate(dr[j][i]);if(t>0&&t<Date.now()+31536000000){n++;if(t>newest)newest=t;}}
+    if(n<5||!newest)return;
+    var months=Math.round((Date.now()-newest)/2629800000);
+    if(months>=24)add({sheet:sheet,field:h,ci:i,cat:'Retention',label:'Storage limitation - newest record is '+months+' months old',sev:'High',samp:[new Date(newest).toISOString().slice(0,10)],pct:100,aff:n,tot:tot});
+  });
+}
+function scanText(text,fn,kind){
+  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};
+  var t=String(text||'').replace(/\u00a0/g,' ');
+  if(t.replace(/\s/g,'').length<10){toast('No readable text found in '+fn,7000);return;}
+  DRULES.forEach(function(rule){
+    var m=t.match(rule.pat);
+    if(!m||!m.length)return;
+    add({sheet:kind,field:rule.label,ci:'v:'+rule.label,cat:'Value Pattern',label:rule.label+' found in text',sev:rule.sev,samp:uniq(m).slice(0,5),pct:null,aff:m.length,tot:0});
+  });
+  HRULES.forEach(function(rule){
+    var m=t.match(new RegExp(rule.pat.source,'gi'));
+    if(!m||!m.length)return;
+    add({sheet:kind,field:uniq(m).slice(0,2).join(', '),ci:'k:'+rule.label,cat:rule.cat,label:rule.label+' (term in text)',sev:rule.sev,samp:uniq(m).slice(0,5),pct:null,aff:m.length,tot:0});
+  });
+  if(!findings.length){toast('Scanned '+fn+' - no personal data patterns detected',6000);}
+  findings.sort(function(a,b){return(SO[b.sev]||0)-(SO[a.sev]||0)});
+  meta={fn:fn,tot:t.length,cols:0,mode:'doc',sheets:[kind],skipped:[],ts:new Date().toLocaleString()};
+  showResults();
+}
+function pct(rows,i){if(!rows.length)return 0;return Math.round(rows.filter(function(r){return real(r[i])}).length/rows.length*100);}
+function riskScore(){
+  var W={Critical:20,High:12,Medium:6,Low:2},best={},s=0;
+  findings.forEach(function(f){var w=W[f.sev]||0;if(!(best[f.label]>=w))best[f.label]=w;});
+  Object.keys(best).forEach(function(k){s+=best[k];});
+  return Math.min(100,s);
+}
 function showResults(){
   document.getElementById('uploadSection').style.display='none';
   document.getElementById('results').style.display='block';
@@ -443,13 +638,21 @@ function showResults(){
 }
 function renderKPIs(){
   var s=riskScore(),col=s>=80?'#f87171':s>=60?'#fb923c':s>=40?'#fbbf24':'#4ade80';
+  var doc=meta.mode==='doc';
   document.getElementById('kpiCards').innerHTML=
-    kc('Findings',findings.length,'fields detected','c-indigo')+
-    kc('Critical',stats.critical||0,'Art.9 + direct IDs','c-red')+
+    kc('Findings',findings.length,doc?'patterns detected':'fields detected','c-indigo')+
+    kc('Critical',stats.critical||0,'Art.9 / Art.10 / direct IDs','c-red')+
     kc('High',stats.high||0,'direct identifiers','c-orange')+
     kc('Medium',stats.medium||0,'indirect identifiers','c-yellow')+
-    kc('Rows Scanned',meta.tot,'data records','c-blue')+
+    kc(doc?'Characters':'Rows Scanned',doc?meta.tot.toLocaleString():meta.tot.toLocaleString(),doc?'of extracted text':(meta.sheets.length+' sheet'+(meta.sheets.length===1?'':'s')+' \u00b7 '+meta.cols+' columns'),'c-blue')+
     '<div class="card"><div class="lbl">Risk Score</div><div class="val" style="color:'+col+'">'+s+'<span style="font-size:14px;color:#64748b">/100</span></div><div class="rbar"><div class="rfill" style="width:'+s+'%;background:'+col+'"></div></div></div>';
+  var el=document.getElementById('scanInfo');
+  var h='<strong style="color:#e2e8f0">'+eh(meta.fn)+'</strong> &nbsp;\u00b7&nbsp; '+meta.ts+'<br>';
+  h+=doc
+    ? 'Read as <strong>'+eh(meta.sheets[0])+'</strong>. Field-name rules and value patterns were run over the extracted text.'
+    : 'Scanned: '+meta.sheets.map(function(n){return '<span class="pill">'+eh(n)+'</span>'}).join('');
+  if(!doc&&meta.skipped.length)h+='<br><span style="color:#64748b">Skipped (no header row or no data): '+meta.skipped.map(eh).join(', ')+'</span>';
+  el.innerHTML=h;
 }
 function kc(l,v,s,c){return '<div class="card"><div class="lbl">'+l+'</div><div class="val '+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';}
 function renderChart(){
@@ -462,8 +665,8 @@ function renderChart(){
 }
 function renderCats(){
   var bc={};findings.forEach(function(f){if(!bc[f.cat])bc[f.cat]=[];bc[f.cat].push(f);});
-  var cs=['Art.9 Special','Direct Identifier','Indirect Identifier','Value Pattern'];
-  var cc={'Art.9 Special':'#a855f7','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80'};
+  var cs=['Art.9 Special','Art.10 Criminal','Direct Identifier','Indirect Identifier','Value Pattern','Retention'];
+  var cc={'Art.9 Special':'#a855f7','Art.10 Criminal':'#f472b6','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80','Retention':'#facc15'};
   var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
   cs.forEach(function(cat){
     var items=bc[cat]||[];
@@ -476,28 +679,34 @@ function renderCats(){
 function renderTable(){
   var fs=(document.getElementById('fSearch').value||'').toLowerCase();
   var fv=document.getElementById('fSev').value,fc=document.getElementById('fCat').value;
+  var doc=meta.mode==='doc';
   var rows=findings.filter(function(f){
-    if(fs&&!f.field.toLowerCase().includes(fs)&&!f.label.toLowerCase().includes(fs))return false;
+    if(fs&&!f.field.toLowerCase().includes(fs)&&!f.label.toLowerCase().includes(fs)&&!String(f.sheet||'').toLowerCase().includes(fs))return false;
     if(fv&&f.sev!==fv)return false;if(fc&&f.cat!==fc)return false;return true;
   });
   if(!rows.length){document.getElementById('tableWrap').innerHTML='<div class="empty">No findings match filters</div>';return;}
+  var hdrs=[doc?'Source':'Sheet','Field',' Category','Type','Severity',doc?'\u2014':'Filled %',doc?'Occurrences':'Affected Rows','Sample Values'];
   var h='<div style="overflow-x:auto"><table><thead><tr>';
-  ['Field','Category','Type','Severity','Filled %','Affected Rows','Sample Values'].forEach(function(col,i){
-    h+='<th onclick="srt('+i+')" title="Sort">'+col+(sc===i?(sa?' &uarr;':' &darr;'):'')+'</th>';
-  });
+  hdrs.forEach(function(col,i){h+='<th onclick="srt('+i+')" title="Sort">'+col.trim()+(sc===i?(sa?' &uarr;':' &darr;'):'')+'</th>';});
   h+='</tr></thead><tbody>';
   rows.forEach(function(f){
     var s2=f.sev==='Critical'?'bc':f.sev==='High'?'bh':f.sev==='Medium'?'bm':'bl';
-    var c2=f.cat==='Art.9 Special'?'ba':f.cat==='Direct Identifier'?'bd':f.cat==='Indirect Identifier'?'bi':'bv';
+    var c2={'Art.9 Special':'ba','Art.10 Criminal':'b10','Direct Identifier':'bd','Indirect Identifier':'bi','Retention':'bret'}[f.cat]||'bv';
     var sv=f.samp&&f.samp.length?f.samp.slice(0,3).map(function(x){return'<span class="pill">'+eh(String(x).substring(0,40))+'</span>'}).join(''):'<span style="color:#4b5563">-</span>';
-    h+='<tr><td style="font-weight:600;font-family:monospace;color:#e2e8f0">'+eh(f.field)+'</td><td><span class="b2 '+c2+'">'+f.cat+'</span></td><td style="color:#94a3b8">'+eh(f.label)+'</td><td><span class="b2 '+s2+'">'+f.sev+'</span></td><td style="text-align:center">'+f.pct+'%</td><td style="text-align:center">'+f.aff+'</td><td>'+sv+'</td></tr>';
+    h+='<tr><td style="color:#94a3b8;font-size:12px">'+eh(f.sheet||'\u2014')+'</td>'
+      +'<td style="font-weight:600;font-family:monospace;color:#e2e8f0">'+eh(f.field)+'</td>'
+      +'<td><span class="b2 '+c2+'">'+eh(f.cat)+'</span></td>'
+      +'<td style="color:#94a3b8">'+eh(f.label)+'</td>'
+      +'<td><span class="b2 '+s2+'">'+f.sev+'</span></td>'
+      +'<td style="text-align:center">'+(f.pct==null?'\u2014':f.pct+'%')+'</td>'
+      +'<td style="text-align:center">'+f.aff+'</td><td>'+sv+'</td></tr>';
   });
   document.getElementById('tableWrap').innerHTML=h+'</tbody></table></div>';
 }
 function srt(col){
   if(sc===col)sa=!sa;else{sc=col;sa=true;}
-  var ks=['field','cat','label','sev','pct','aff','samp'];
-  findings.sort(function(a,b){var av=a[ks[col]],bv=b[ks[col]];if(col===3){av=SO[av]||0;bv=SO[bv]||0;}if(av<bv)return sa?-1:1;if(av>bv)return sa?1:-1;return 0;});
+  var ks=['sheet','field','cat','label','sev','pct','aff','samp'];
+  findings.sort(function(a,b){var av=a[ks[col]],bv=b[ks[col]];if(col===4){av=SO[av]||0;bv=SO[bv]||0;}if(av==null)av='';if(bv==null)bv='';if(av<bv)return sa?-1:1;if(av>bv)return sa?1:-1;return 0;});
   renderTable();
 }
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -505,13 +714,13 @@ function resetScan(){
   findings=[];stats={};meta={};
   document.getElementById('results').style.display='none';
   document.getElementById('uploadSection').style.display='block';
-  document.getElementById('kpiCards').innerHTML='';document.getElementById('catBody').innerHTML='';document.getElementById('tableWrap').innerHTML='';
+  document.getElementById('kpiCards').innerHTML='';document.getElementById('catBody').innerHTML='';document.getElementById('tableWrap').innerHTML='';document.getElementById('scanInfo').innerHTML='';
   fi.value='';if(chartInst){chartInst.destroy();chartInst=null;}
 }
 function toast(msg,dur){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},dur||4000);}
 function exportReport(){
-  var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><table><thead><tr><th>Field</th><th>Category</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
-  findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+f.pct+'%</td><td>'+f.aff+'</td></tr>';});
+  var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><p>Scanned: '+eh((meta.sheets||[]).join(', '))+(meta.skipped&&meta.skipped.length?' &nbsp;|&nbsp; Skipped: '+eh(meta.skipped.join(', ')):'')+'</p><table><thead><tr><th>Sheet</th><th>Field</th><th>Category</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
+  findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td>'+eh(f.sheet||'-')+'</td><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+(f.pct==null?'-':f.pct+'%')+'</td><td>'+f.aff+'</td></tr>';});
   h+='</tbody></table></body></html>';
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='GDPR_Report_'+meta.fn.replace(/\.[^.]+$/,'')+'_'+new Date().toISOString().slice(0,10)+'.html';a.click();
 }

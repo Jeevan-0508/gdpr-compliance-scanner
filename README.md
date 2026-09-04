@@ -32,8 +32,9 @@ This tool scans the file itself, locally, and tells you in seconds what's in the
 ```mermaid
 flowchart LR
     A["📁 Upload file
-CSV · Excel · JSON · TSV"] --> B["🔎 Header pass
-29 GDPR field-name rules"]
+Excel (all sheets) · CSV · TSV · JSON
+PDF · Word · PowerPoint · images (OCR)"] --> B["🔎 Header pass
+35 GDPR field-name rules"]
     B --> C["🔬 Value pass
 9 regex patterns, up to 2,000 rows"]
     C --> D["📊 Risk scoring
@@ -45,8 +46,13 @@ score · charts · checklist · export"]
 ## How to use it
 
 1. **Open the app** — click Start Scanning on the [live site](https://jeevan-0508.github.io/gdpr-compliance-scanner/gdpr_scanner.html), or open the downloaded file directly. No account, no install required.
-2. **Drag and drop a file** (or click Browse) — CSV, Excel (.xlsx/.xls), JSON, TSV, or plain text.
-3. **Let it scan** — the header pass checks every column name against 29 GDPR field rules, then the value pass regex-scans up to 2,000 rows for 9 pattern types (emails, IBANs, cards, national IDs, GPS, DOB, passport numbers, IP addresses, Art. 9 special-category data).
+2. **Drag and drop a file** (or click Browse):
+   - **Tabular** — `.csv` `.tsv` `.xlsx` `.xls` `.xlsm` `.ods` `.json`. Every sheet in a workbook is scanned, not just the first.
+   - **Documents** — `.pdf` `.docx` `.pptx` `.odt` `.xml` `.html` `.txt` `.md` `.log`
+   - **Images (OCR)** — `.png` `.jpg` `.webp` `.bmp` `.tiff`
+3. **Let it scan** — the header pass checks every column name against 35 GDPR field rules, then the value pass regex-scans up to 200 sampled rows per column for 9 pattern types (emails, IBANs, cards, national IDs, GPS, DOB, passport numbers, IP addresses). Free-text formats are scanned with 9 unanchored equivalents plus the field-name terms.
+
+   Findings are grouped into six categories: **Art. 9 Special** (health, biometric, genetic, racial/ethnic, religious, political, sexual orientation), **Art. 10 Criminal** (allegations, offence type/MO, investigation and disciplinary case records), **Direct Identifier**, **Indirect Identifier**, **Value Pattern**, and **Retention** (Art. 5(1)(e) storage limitation — flags date columns whose newest record is 24+ months old).
 4. **Read the dashboard** — GDPR Risk Score out of 100 with a grade, KPI cards, a donut chart by data type, and a sortable findings table with article references and remediation advice per field.
 5. **Check the compliance checklist** — six pass/fail checks flag the specific gaps driving your score.
 6. **Export the report** — one click downloads a standalone HTML report you can attach to an email, ticket, or audit file.
@@ -67,8 +73,9 @@ score · charts · checklist · export"]
 
 | | |
 |---|---|
-| **Drag & drop upload** | CSV, Excel (.xlsx/.xls), JSON, TXT, TSV |
-| **Two-pass detection** | Header-name analysis against 29 GDPR rules, plus value-level regex scanning across up to 2,000 rows (9 pattern types) |
+| **Drag & drop upload** | 25 extensions — spreadsheets, PDF, Word, PowerPoint, markup, plain text, and images via OCR |
+| **Multi-sheet workbooks** | Every sheet is scanned and reported separately, with a coverage banner naming what was read and what was skipped |
+| **Two-pass detection** | Header-name analysis against 35 GDPR rules, plus value-level regex scanning of sampled rows (9 pattern types) |
 | **Detects** | Emails, IBANs, credit cards, UK NI numbers, phone numbers, GPS coordinates, dates of birth, passport numbers, IP addresses, and Art. 9 special categories (health, race, religion, biometric, genetic, criminal conviction data) |
 | **Risk scoring** | Critical / High / Medium / Low, mapped to GDPR articles, rolled up into a Risk Score /100 with a grade |
 | **Dashboard** | KPI cards, donut chart by data type, sortable/filterable findings table with remediation advice |
