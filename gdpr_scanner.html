@@ -199,7 +199,7 @@ tr:hover td{background:#1e293b55}
         <div class="cat-card cat-art9">
           <div class="cat-icon">&#9940;</div>
           <h3>Art.9 Special Categories</h3>
-          <p>The most protected class under GDPR Article 9. Processing this data is <strong>prohibited by default</strong> unless you have explicit consent or a legal basis.</p>
+          <p>The most protected class under GDPR Article 9. Processing is <strong>prohibited by default</strong> under Art. 9(1) and needs <strong>both</strong> an Art. 6 lawful basis <strong>and</strong> a separate Art. 9(2) condition &mdash; two tests, not one. Art. 10 (criminal convictions and offences, including alleged offences) additionally requires official authority or a Member State law authorising it.</p>
           <ul><li>Health &amp; medical data</li><li>Biometrics (face ID, fingerprints)</li><li>Genetic / DNA data</li><li>Race or ethnic origin</li><li>Religion or beliefs</li><li>Political opinions</li><li>Sexual orientation</li><li>Criminal records</li></ul>
         </div>
         <div class="cat-card cat-direct">
@@ -239,7 +239,7 @@ tr:hover td{background:#1e293b55}
         <table class="risk-tbl">
           <thead><tr><th>Level</th><th>Score per field</th><th>What it means</th><th>Examples</th></tr></thead>
           <tbody>
-            <tr><td><span class="bdg b-crit">Critical</span></td><td style="color:#f87171;font-weight:700">+20 pts</td><td>Art.9 special categories or unique identifiers. Processing this without legal basis is a direct GDPR violation.</td><td>SSN, passport, IBAN, health data, biometrics, criminal record</td></tr>
+            <tr><td><span class="bdg b-crit">Critical</span></td><td style="color:#f87171;font-weight:700">+20 pts</td><td>Art.9 special categories, Art.10 criminal-offence data, or unique identifiers. Needs an Art. 6 basis plus an Art. 9(2) condition or Art. 10 authorisation.</td><td>SSN, passport, IBAN, health data, biometrics, criminal record</td></tr>
             <tr><td><span class="bdg b-high">High</span></td><td style="color:#fb923c;font-weight:700">+12 pts</td><td>Direct identifiers that clearly point to a person. Should never appear in shared files without pseudonymisation.</td><td>Email, phone, full name, date of birth, IP address, GPS</td></tr>
             <tr><td><span class="bdg b-med">Medium</span></td><td style="color:#fbbf24;font-weight:700">+6 pts</td><td>Indirect identifiers. Low risk alone but can identify someone in combination with other fields.</td><td>Login alias, employee ID, gender, age, address, device ID</td></tr>
             <tr><td><span class="bdg b-low">Low</span></td><td style="color:#4ade80;font-weight:700">+2 pts</td><td>Operational IDs loosely linked to people. Worth noting but unlikely to cause a violation on their own.</td><td>Tour ID, contract ID, session token</td></tr>
@@ -258,7 +258,7 @@ tr:hover td{background:#1e293b55}
   <div class="scanner-top">
     <h2>&#128274; GDPR Compliance Scanner</h2>
     <p>Upload a data file to detect personal data fields and assess compliance risk</p>
-    <p style="font-size:11px;color:#c7d2fe;opacity:.75;margin:6px 0 0">Build <strong id="buildTag" style="color:#fff">2.1</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; Art.9 + Art.10 + retention rules &nbsp;·&nbsp; 25 file formats</p>
+    <p style="font-size:11px;color:#c7d2fe;opacity:.75;margin:6px 0 0">Build <strong id="buildTag" style="color:#fff">2.2</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; Art.9 + Art.10 + retention rules &nbsp;·&nbsp; 25 file formats</p>
   </div>
   <div id="uploadSection">
     <div class="drop-zone" id="dropZone">
@@ -377,6 +377,14 @@ var DRULES=[
   {pat:/\b[A-Z]{1,2}\d{6,8}\b/g,label:'Passport-like ID',sev:'High'}
 ];
 var ISO_DATE=/^(?:19|20)\d{2}-\d{2}-\d{2}$/;
+var ART={
+  'Art.9 Special':'Art. 9(1)',
+  'Art.10 Criminal':'Art. 10',
+  'Direct Identifier':'Art. 4(1)',
+  'Indirect Identifier':'Art. 4(1) + Rec. 26',
+  'Value Pattern':'Art. 4(1)',
+  'Retention':'Art. 5(1)(e)'
+};
 var SO={Critical:4,High:3,Medium:2,Low:1};
 var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true,seenKeys={};
 var PDFJS_URL='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
@@ -694,7 +702,7 @@ function renderTable(){
     if(fv&&f.sev!==fv)return false;if(fc&&f.cat!==fc)return false;return true;
   });
   if(!rows.length){document.getElementById('tableWrap').innerHTML='<div class="empty">No findings match filters</div>';return;}
-  var hdrs=[doc?'Source':'Sheet','Field',' Category','Type','Severity',doc?'\u2014':'Filled %',doc?'Occurrences':'Affected Rows','Sample Values'];
+  var hdrs=[doc?'Source':'Sheet','Field',' Category','Article','Type','Severity',doc?'\u2014':'Filled %',doc?'Occurrences':'Affected Rows','Sample Values'];
   var h='<div style="overflow-x:auto"><table><thead><tr>';
   hdrs.forEach(function(col,i){h+='<th onclick="srt('+i+')" title="Sort">'+col.trim()+(sc===i?(sa?' &uarr;':' &darr;'):'')+'</th>';});
   h+='</tr></thead><tbody>';
@@ -705,6 +713,7 @@ function renderTable(){
     h+='<tr><td style="color:#94a3b8;font-size:12px">'+eh(f.sheet||'\u2014')+'</td>'
       +'<td style="font-weight:600;font-family:monospace;color:#e2e8f0">'+eh(f.field)+'</td>'
       +'<td><span class="b2 '+c2+'">'+eh(f.cat)+'</span></td>'
+      +'<td style="color:#94a3b8;font-size:12px;white-space:nowrap">'+eh(ART[f.cat]||'\u2014')+'</td>'
       +'<td style="color:#94a3b8">'+eh(f.label)+'</td>'
       +'<td><span class="b2 '+s2+'">'+f.sev+'</span></td>'
       +'<td style="text-align:center">'+(f.pct==null?'\u2014':f.pct+'%')+'</td>'
@@ -714,8 +723,8 @@ function renderTable(){
 }
 function srt(col){
   if(sc===col)sa=!sa;else{sc=col;sa=true;}
-  var ks=['sheet','field','cat','label','sev','pct','aff','samp'];
-  findings.sort(function(a,b){var av=a[ks[col]],bv=b[ks[col]];if(col===4){av=SO[av]||0;bv=SO[bv]||0;}if(av==null)av='';if(bv==null)bv='';if(av<bv)return sa?-1:1;if(av>bv)return sa?1:-1;return 0;});
+  var ks=['sheet','field','cat','art','label','sev','pct','aff','samp'];
+  findings.sort(function(a,b){var av=col===3?(ART[a.cat]||''):a[ks[col]],bv=col===3?(ART[b.cat]||''):b[ks[col]];if(col===5){av=SO[av]||0;bv=SO[bv]||0;}if(av==null)av='';if(bv==null)bv='';if(av<bv)return sa?-1:1;if(av>bv)return sa?1:-1;return 0;});
   renderTable();
 }
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -728,8 +737,8 @@ function resetScan(){
 }
 function toast(msg,dur){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},dur||4000);}
 function exportReport(){
-  var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><p>Scanned: '+eh((meta.sheets||[]).join(', '))+(meta.skipped&&meta.skipped.length?' &nbsp;|&nbsp; Skipped: '+eh(meta.skipped.join(', ')):'')+'</p><table><thead><tr><th>Sheet</th><th>Field</th><th>Category</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
-  findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td>'+eh(f.sheet||'-')+'</td><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+(f.pct==null?'-':f.pct+'%')+'</td><td>'+f.aff+'</td></tr>';});
+  var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><p>Scanned: '+eh((meta.sheets||[]).join(', '))+(meta.skipped&&meta.skipped.length?' &nbsp;|&nbsp; Skipped: '+eh(meta.skipped.join(', ')):'')+'</p><table><thead><tr><th>Sheet</th><th>Field</th><th>Category</th><th>Article</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
+  findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td>'+eh(f.sheet||'-')+'</td><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(ART[f.cat]||'-')+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+(f.pct==null?'-':f.pct+'%')+'</td><td>'+f.aff+'</td></tr>';});
   h+='</tbody></table></body></html>';
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='GDPR_Report_'+meta.fn.replace(/\.[^.]+$/,'')+'_'+new Date().toISOString().slice(0,10)+'.html';a.click();
 }
