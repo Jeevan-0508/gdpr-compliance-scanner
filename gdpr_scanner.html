@@ -148,7 +148,19 @@ tr:hover td{background:#1e293b55}
 .bm{background:#422006;color:#fde68a}.bl{background:#052e16;color:#86efac}
 .ba{background:#3b0764;color:#e9d5ff}.bd{background:#1e1b4b;color:#a5b4fc}
 .bi{background:#0c2340;color:#7dd3fc}.bv{background:#052e16;color:#86efac}
-.b10{background:#500724;color:#fbcfe8}.bret{background:#422006;color:#fde68a}
+.b10{background:#500724;color:#fbcfe8}.bret{background:#422006;color:#fde68a}.bmin{background:#431407;color:#fed7aa}
+.asec{background:#0f1117;border:1px solid #334155;border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.asec h4{font-size:13px;color:#e2e8f0;margin:0 0 4px}
+.asec .cite{font-size:11px;color:#64748b;margin-bottom:8px}
+.asec p{font-size:12px;color:#94a3b8;margin:0 0 6px;line-height:1.55}
+.asec select,.asec label{font-size:12px}
+.asec select{background:#1e293b;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:4px 6px;margin:2px 6px 2px 0}
+.asec label{color:#94a3b8;display:inline-flex;align-items:center;gap:5px;margin-right:14px}
+.yin{font-size:10px;color:#fbbf24;border:1px solid #78350f;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle}
+.mtr{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.mtr div{background:#1e293b;border-radius:6px;padding:8px 12px;min-width:96px}
+.mtr .mk{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.4px}
+.mtr .mv{font-size:16px;font-weight:700;color:#e2e8f0}
 .pill{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;background:#0f1117;color:#64748b;margin:1px}
 .frow{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#161b27;border-bottom:1px solid #334155}
 .frow select,.frow input{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:6px 10px;font-size:12px}
@@ -258,7 +270,7 @@ tr:hover td{background:#1e293b55}
   <div class="scanner-top">
     <h2>&#128274; GDPR Compliance Scanner</h2>
     <p>Upload a data file to detect personal data fields and assess compliance risk</p>
-    <p style="font-size:11px;color:#c7d2fe;opacity:.75;margin:6px 0 0">Build <strong id="buildTag" style="color:#fff">2.2</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; Art.9 + Art.10 + retention rules &nbsp;·&nbsp; 25 file formats</p>
+    <p style="font-size:11px;color:#c7d2fe;opacity:.75;margin:6px 0 0">Build <strong id="buildTag" style="color:#fff">2.3</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; minimisation + singling-out + DPIA analysis &nbsp;·&nbsp; 25 file formats</p>
   </div>
   <div id="uploadSection">
     <div class="drop-zone" id="dropZone">
@@ -291,6 +303,10 @@ tr:hover td{background:#1e293b55}
       </div>
     </div>
     <div class="panel">
+      <div class="panel-hdr"><h3>Compliance Analysis</h3><span style="font-size:11px;color:#64748b">Derived from the file. Fields marked <em>your input</em> cannot be read from a spreadsheet.</span></div>
+      <div class="panel-body" id="assessBody"></div>
+    </div>
+    <div class="panel">
       <div class="panel-hdr">
         <h3>Findings</h3>
         <div style="display:flex;gap:8px">
@@ -301,7 +317,7 @@ tr:hover td{background:#1e293b55}
       <div class="frow">
         <input type="text" id="fSearch" placeholder="Search field name..." oninput="renderTable()">
         <select id="fSev" onchange="renderTable()"><option value="">All Severity</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
-        <select id="fCat" onchange="renderTable()"><option value="">All Categories</option><option>Art.9 Special</option><option>Art.10 Criminal</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option><option>Retention</option></select>
+        <select id="fCat" onchange="renderTable()"><option value="">All Categories</option><option>Art.9 Special</option><option>Art.10 Criminal</option><option>Direct Identifier</option><option>Indirect Identifier</option><option>Value Pattern</option><option>Retention</option><option>Minimisation</option></select>
       </div>
       <div id="tableWrap"></div>
     </div>
@@ -383,10 +399,17 @@ var ART={
   'Direct Identifier':'Art. 4(1)',
   'Indirect Identifier':'Art. 4(1) + Rec. 26',
   'Value Pattern':'Art. 4(1)',
-  'Retention':'Art. 5(1)(e)'
+  'Retention':'Art. 5(1)(e)',
+  'Minimisation':'Art. 5(1)(c)'
 };
 var SO={Critical:4,High:3,Medium:2,Low:1};
 var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true,seenKeys={};
+var sheetData=[],corpus='',assess=null;
+// Inputs the file cannot answer. Defaults are deliberately neutral, not optimistic.
+var AIN={conf:0,integ:0,avail:0,mal:0,nctx:'',nobl:'',nacc:'',profiling:false,monitor:false,vuln:false,basis:'',cond9:'',auth10:''};
+var LEGAL_PERSON=/\bscac\b|carrier.?(?:name|id|code)|\bvendor\b|supplier|\bcompany\b|organi[sz]ation|\bvat\b|\bgstin\b|tax.?(?:id|number)|\bduns\b|\bmc.?(?:number|no)\b|\bdot.?(?:number|no)\b|business.?name|\bsubcontractor\b|\bhaulier\b|\boperator.?name\b/i;
+var FINANCIAL=/salary|wage|payroll|\biban\b|bank.?(?:account|detail)|card.?(?:number|no)|credit.?(?:score|rating|card)|\btax.?(?:code|return)|\bsort.?code\b|remuneration|bonus|payslip/i;
+var BEHAVIOURAL=/location|\bgps\b|latitude|longitude|\broute\b|\btour\b|shift|roster|login|device|ip.?address|timestamp|clock.?(?:in|out)|attendance|work.?setup|tenure|badge|swipe|access.?log|browsing|telemetry/i;
 var PDFJS_URL='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 var PDFJS_WORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 var TESS_URL='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
@@ -568,7 +591,7 @@ function add(f){
 function uniq(a){var o={},r=[];a.forEach(function(x){if(!o[x]){o[x]=1;r.push(x)}});return r;}
 function scan(rows,fn){scanWorkbook([{name:'',rows:rows}],fn);}
 function scanWorkbook(sheets,fn){
-  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};
+  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};sheetData=[];assess=null;
   var tot=0,cols=0,done=[],skipped=[];
   sheets.forEach(function(sh){
     var rows=sh.rows||[];
@@ -577,9 +600,12 @@ function scanWorkbook(sheets,fn){
     if(!hdr.some(function(h){return h!==''})||!dr.length){skipped.push(sh.name||'(sheet)');return;}
     done.push(sh.name||'(single sheet)');
     tot+=dr.length;cols+=hdr.length;
+    sheetData.push({name:sh.name||'(single sheet)',hdr:hdr,dr:dr});
     scanSheet(sh.name,hdr,dr);
   });
   if(!done.length){toast('No readable rows found in '+fn,7000);return;}
+  corpus=sheetData.map(function(sh){return sh.hdr.join(' ')}).join(' ');
+  analyseFile(tot);
   findings.sort(function(a,b){return(SO[b.sev]||0)-(SO[a.sev]||0)});
   meta={fn:fn,tot:tot,cols:cols,mode:'table',sheets:done,skipped:skipped,ts:new Date().toLocaleString()};
   showResults();
@@ -622,7 +648,7 @@ function scanSheet(sheet,hdr,dr){
   });
 }
 function scanText(text,fn,kind){
-  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};
+  findings=[];stats={critical:0,high:0,medium:0,low:0};seenKeys={};sheetData=[];assess=null;
   var t=String(text||'').replace(/\u00a0/g,' ');
   if(t.replace(/\s/g,'').length<10){toast('No readable text found in '+fn,7000);return;}
   DRULES.forEach(function(rule){
@@ -636,6 +662,8 @@ function scanText(text,fn,kind){
     add({sheet:kind,field:uniq(m).slice(0,2).join(', '),ci:'k:'+rule.label,cat:rule.cat,label:rule.label+' (term in text)',sev:rule.sev,samp:uniq(m).slice(0,5),pct:null,aff:m.length,tot:0});
   });
   if(!findings.length){toast('Scanned '+fn+' - no personal data patterns detected',6000);}
+  corpus=t.slice(0,200000);
+  analyseFile(0);
   findings.sort(function(a,b){return(SO[b.sev]||0)-(SO[a.sev]||0)});
   meta={fn:fn,tot:t.length,cols:0,mode:'doc',sheets:[kind],skipped:[],ts:new Date().toLocaleString()};
   showResults();
@@ -650,7 +678,7 @@ function riskScore(){
 function showResults(){
   document.getElementById('uploadSection').style.display='none';
   document.getElementById('results').style.display='block';
-  renderKPIs();renderChart();renderCats();renderTable();
+  renderKPIs();renderChart();renderCats();renderAssess();renderTable();
   toast('Scan complete - '+findings.length+' findings in '+meta.fn);
 }
 function renderKPIs(){
@@ -682,8 +710,8 @@ function renderChart(){
 }
 function renderCats(){
   var bc={};findings.forEach(function(f){if(!bc[f.cat])bc[f.cat]=[];bc[f.cat].push(f);});
-  var cs=['Art.9 Special','Art.10 Criminal','Direct Identifier','Indirect Identifier','Value Pattern','Retention'];
-  var cc={'Art.9 Special':'#a855f7','Art.10 Criminal':'#f472b6','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80','Retention':'#facc15'};
+  var cs=['Art.9 Special','Art.10 Criminal','Direct Identifier','Indirect Identifier','Value Pattern','Retention','Minimisation'];
+  var cc={'Art.9 Special':'#a855f7','Art.10 Criminal':'#f472b6','Direct Identifier':'#f87171','Indirect Identifier':'#60a5fa','Value Pattern':'#4ade80','Retention':'#facc15','Minimisation':'#fb923c'};
   var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
   cs.forEach(function(cat){
     var items=bc[cat]||[];
@@ -708,7 +736,7 @@ function renderTable(){
   h+='</tr></thead><tbody>';
   rows.forEach(function(f){
     var s2=f.sev==='Critical'?'bc':f.sev==='High'?'bh':f.sev==='Medium'?'bm':'bl';
-    var c2={'Art.9 Special':'ba','Art.10 Criminal':'b10','Direct Identifier':'bd','Indirect Identifier':'bi','Retention':'bret'}[f.cat]||'bv';
+    var c2={'Art.9 Special':'ba','Art.10 Criminal':'b10','Direct Identifier':'bd','Indirect Identifier':'bi','Retention':'bret','Minimisation':'bmin'}[f.cat]||'bv';
     var sv=f.samp&&f.samp.length?f.samp.slice(0,3).map(function(x){return'<span class="pill">'+eh(String(x).substring(0,40))+'</span>'}).join(''):'<span style="color:#4b5563">-</span>';
     h+='<tr><td style="color:#94a3b8;font-size:12px">'+eh(f.sheet||'\u2014')+'</td>'
       +'<td style="font-weight:600;font-family:monospace;color:#e2e8f0">'+eh(f.field)+'</td>'
@@ -729,18 +757,342 @@ function srt(col){
 }
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function resetScan(){
-  findings=[];stats={};meta={};
+  findings=[];stats={};meta={};sheetData=[];assess=null;corpus='';
   document.getElementById('results').style.display='none';
   document.getElementById('uploadSection').style.display='block';
-  document.getElementById('kpiCards').innerHTML='';document.getElementById('catBody').innerHTML='';document.getElementById('tableWrap').innerHTML='';document.getElementById('scanInfo').innerHTML='';
+  document.getElementById('kpiCards').innerHTML='';document.getElementById('catBody').innerHTML='';document.getElementById('tableWrap').innerHTML='';document.getElementById('scanInfo').innerHTML='';document.getElementById('assessBody').innerHTML='';
   fi.value='';if(chartInst){chartInst.destroy();chartInst=null;}
 }
 function toast(msg,dur){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},dur||4000);}
 function exportReport(){
   var h='<html><head><meta charset=UTF-8><title>GDPR Report</title><style>body{font-family:Segoe UI,sans-serif;background:#fff;color:#111;padding:32px;max-width:1000px;margin:0 auto}h1{color:#4f46e5;margin-bottom:4px}p{color:#6b7280;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#4f46e5;color:#fff;padding:9px 14px;text-align:left}td{padding:9px 14px;border-bottom:1px solid #e5e7eb}tr:nth-child(even){background:#f9fafb}.crit{color:#dc2626;font-weight:700}.high{color:#ea580c}.med{color:#d97706}.low{color:#16a34a}</style></head><body><h1>GDPR Report</h1><p>File: <strong>'+eh(meta.fn)+'</strong> | Scanned: '+meta.ts+' | Rows: '+meta.tot+' | Findings: '+findings.length+'</p><p>Scanned: '+eh((meta.sheets||[]).join(', '))+(meta.skipped&&meta.skipped.length?' &nbsp;|&nbsp; Skipped: '+eh(meta.skipped.join(', ')):'')+'</p><table><thead><tr><th>Sheet</th><th>Field</th><th>Category</th><th>Article</th><th>Type</th><th>Severity</th><th>Filled%</th><th>Affected Rows</th></tr></thead><tbody>';
   findings.forEach(function(f){var s2=f.sev==='Critical'?'crit':f.sev==='High'?'high':f.sev==='Medium'?'med':'low';h+='<tr><td>'+eh(f.sheet||'-')+'</td><td><code>'+eh(f.field)+'</code></td><td>'+eh(f.cat)+'</td><td>'+eh(ART[f.cat]||'-')+'</td><td>'+eh(f.label)+'</td><td class="'+s2+'">'+f.sev+'</td><td>'+(f.pct==null?'-':f.pct+'%')+'</td><td>'+f.aff+'</td></tr>';});
-  h+='</tbody></table></body></html>';
+  h+='</tbody></table>';
+  if(assess){
+    var e=enisa(),n=nist(),d=dpia(),A=assess;
+    h+='<h2 style="color:#4f46e5;margin-top:28px">Compliance analysis</h2>';
+    h+='<h3>Data minimisation - Art. 5(1)(c)</h3>';
+    if(!A.min)h+='<p>Not assessed (not a tabular file).</p>';
+    else{
+      var m=A.min,li=[];
+      m.overlap.forEach(function(o){li.push('<strong>'+o.pct+'% of the distinct row signatures in "'+eh(o.a)+'" also occur in "'+eh(o.b)+'"</strong> ('+o.rows.toLocaleString()+' of '+o.of.toLocaleString()+')');});
+      m.dupSheets.forEach(function(x){li.push('Identical '+x.cols+'-column structure: '+eh(x.sheets.join(' / ')));});
+      if(m.emptyCols.length)li.push(m.emptyCols.length+' columns never populated: '+eh(m.emptyCols.slice(0,15).join(', ')));
+      if(m.dupCols.length)li.push('Redundant columns: '+eh(m.dupCols.slice(0,10).join(', ')));
+      h+=li.length?'<ul><li>'+li.join('</li><li>')+'</li></ul>':'<p>No duplication or unused columns found.</p>';
+    }
+    h+='<h3>Singling out - Recital 26, WP216</h3>';
+    if(!A.sing||A.sing.k==null&&!(A.sing.unique||[]).length)h+='<p>Not assessed or no quasi-identifiers found.</p>';
+    else{
+      h+='<ul>';
+      (A.sing.unique||[]).forEach(function(u){h+='<li>'+eh(u.field)+' has '+u.distinct.toLocaleString()+' distinct values over '+u.rows.toLocaleString()+' rows - singles out records on its own.</li>';});
+      if(A.sing.k!=null)h+='<li>k = '+A.sing.k+' over '+eh(A.sing.used.join(', '))+' in sheet '+eh(A.sing.sheet)+'; '+A.sing.nLt5.toLocaleString()+' rows ('+A.sing.pctLt5+'%) sit in groups smaller than 5, '+A.sing.nUnique.toLocaleString()+' ('+A.sing.pctUnique+'%) are unique.</li>';
+      h+='</ul>';
+    }
+    h+='<h3>Legal persons - Recital 14</h3><p>'+(A.legal.length?'Likely out of scope, verify before excluding: '+eh(A.legal.join(', ')):'None detected.')+'</p>';
+    h+='<h3>Breach severity - ENISA (2013), SE = DPC x EI + CB</h3><p>DPC '+e.dpc+' ('+eh(e.dl)+') x EI '+e.ei+' ('+eh(e.el)+') + CB '+e.cb+' = <strong>SE '+e.se+' - '+e.band+'</strong></p>';
+    h+='<h3>PII confidentiality impact - NIST SP 800-122 s3.2</h3><table><thead><tr><th>Factor</th><th>Level</th><th>Basis</th></tr></thead><tbody>';
+    n.factors.forEach(function(f){h+='<tr><td>'+f.k+'</td><td>'+(f.v==null?'not set':n.L[f.v])+'</td><td>'+eh(f.why||'set by the assessor')+'</td></tr>';});
+    h+='</tbody></table><p>Overall: <strong>'+n.level+'</strong>'+(n.partial?' (provisional - some factors not set)':'')+'</p>';
+    h+='<h3>DPIA - Art. 35(3)</h3><p><strong>'+d.verdict+'</strong></p><ul>';
+    d.tr.forEach(function(t){h+='<li>'+(t.hit?'TRIGGERED':'not triggered')+' - '+t.id+': '+eh(t.txt)+(t.why?' ('+eh(t.why)+')':'')+'</li>';});
+    h+='</ul><p>"Large scale" is judged here by a 5,000-row heuristic, not by law.</p>';
+    h+='<h3>Lawful basis</h3><ul>';
+    basis().forEach(function(b){var k=b.need.indexOf('9(2)')>=0?'cond9':b.need.indexOf('Art. 10')>=0?'auth10':'basis';h+='<li>'+eh(b.need)+': <strong>'+eh(AIN[k]||'not recorded')+'</strong></li>';});
+    h+='</ul>';
+  }
+  h+='</body></html>';
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='GDPR_Report_'+meta.fn.replace(/\.[^.]+$/,'')+'_'+new Date().toISOString().slice(0,10)+'.html';a.click();
+}
+
+
+/* ---------------------------------------------------------------------------
+   Compliance analysis. Everything here is computed from the uploaded file
+   except the fields flagged "your input", which a spreadsheet cannot answer.
+   --------------------------------------------------------------------------- */
+function rowHash(r,hdr){
+  var p=[];
+  for(var i=0;i<hdr.length;i++){var v=cellStr(r[i]);p.push(real(v)?v.toLowerCase():'');}
+  return p.join('\u0001').replace(/\u0001+$/,'');
+}
+function colVals(sh,i,cap){
+  var o=[];for(var j=0;j<Math.min(sh.dr.length,cap);j++){var v=cellStr(sh.dr[j][i]);o.push(real(v)?v.toLowerCase():'');}
+  return o;
+}
+// Art. 5(1)(c): duplicated sheets, duplicated columns, columns never populated.
+function minimisation(){
+  var out={dupSheets:[],dupCols:[],emptyCols:[],overlap:[]};
+  var sig={};
+  sheetData.forEach(function(sh){
+    var k=sh.hdr.map(function(h){return h.toLowerCase()}).filter(function(h){return h}).sort().join('|');
+    if(!k)return;(sig[k]=sig[k]||[]).push(sh);
+  });
+  Object.keys(sig).forEach(function(k){
+    if(sig[k].length<2)return;
+    out.dupSheets.push({sheets:sig[k].map(function(x){return x.name+' ('+x.dr.length.toLocaleString()+' rows)'}),cols:sig[k][0].hdr.length});
+  });
+  var sets=sheetData.map(function(sh){
+    var st={},n=0;
+    for(var j=0;j<Math.min(sh.dr.length,20000);j++){var h=rowHash(sh.dr[j],sh.hdr);if(h){st[h]=1;n++;}}
+    return {name:sh.name,set:st,n:Object.keys(st).length};
+  });
+  for(var a=0;a<sets.length;a++)for(var b=a+1;b<sets.length;b++){
+    if(!sets[a].n||!sets[b].n)continue;
+    var sm=sets[a].n<sets[b].n?sets[a]:sets[b],lg=sets[a].n<sets[b].n?sets[b]:sets[a],hit=0;
+    Object.keys(sm.set).forEach(function(h){if(lg.set[h])hit++;});
+    var r=hit/sm.n;
+    if(r>=0.5)out.overlap.push({a:sm.name,b:lg.name,pct:Math.round(r*100),rows:hit,of:sm.n});
+  }
+  sheetData.forEach(function(sh){
+    sh.hdr.forEach(function(h,i){
+      if(!h)return;
+      var v=colVals(sh,i,400),f=v.filter(function(x){return x});
+      if(!f.length){out.emptyCols.push(sh.name+' \u00b7 '+h);return;}
+    });
+    for(var i=0;i<sh.hdr.length;i++)for(var j=i+1;j<sh.hdr.length;j++){
+      if(!sh.hdr[i]||!sh.hdr[j])continue;
+      var vi=colVals(sh,i,300),vj=colVals(sh,j,300);
+      if(!vi.some(function(x){return x}))continue;
+      if(vi.join('\u0001')===vj.join('\u0001'))out.dupCols.push(sh.name+' \u00b7 '+sh.hdr[i]+' = '+sh.hdr[j]);
+    }
+  });
+  return out;
+}
+// WP29 WP216 / Recital 26: can a record be singled out from the quasi-identifiers present?
+function singlingOut(){
+  if(!sheetData.length)return null;
+  var sh=sheetData.slice().sort(function(a,b){return b.dr.length-a.dr.length})[0];
+  var idx={};
+  findings.forEach(function(f){if(f.sheet===sh.name&&f.cat==='Indirect Identifier'&&typeof f.ci==='number')idx[f.ci]=f.field;});
+  var cand=[],unique=[];
+  Object.keys(idx).forEach(function(k){
+    var i=+k,v=colVals(sh,i,5000).filter(function(x){return x});
+    if(v.length<20)return;
+    var d={},c=0;v.forEach(function(x){if(!d[x]){d[x]=1;c++}});
+    var ratio=c/v.length;
+    if(ratio>=0.8)unique.push({field:idx[k],distinct:c,rows:v.length});
+    else if(c>=2&&c<=200)cand.push({i:i,field:idx[k],distinct:c});
+  });
+  cand.sort(function(a,b){return b.distinct-a.distinct});
+  var use=cand.slice(0,5);
+  if(!use.length)return {sheet:sh.name,used:[],unique:unique,k:null};
+  var cls={},n=0;
+  for(var j=0;j<Math.min(sh.dr.length,20000);j++){
+    var key=use.map(function(u){return cellStr(sh.dr[j][u.i]).toLowerCase()}).join('\u0001');
+    if(key.replace(/\u0001/g,'')==='')continue;
+    cls[key]=(cls[key]||0)+1;n++;
+  }
+  var ks=Object.keys(cls),min=1e9,lt5=0,lt2=0;
+  ks.forEach(function(k2){var c=cls[k2];if(c<min)min=c;if(c<5)lt5+=c;if(c<2)lt2+=c;});
+  return {sheet:sh.name,used:use.map(function(u){return u.field}),unique:unique,k:ks.length?min:null,
+          classes:ks.length,rows:n,nLt5:lt5,nUnique:lt2,pctLt5:sub(lt5,n),pctUnique:sub(lt2,n)};
+}
+// Recital 14: the Regulation does not cover data about legal persons.
+function legalPersons(){
+  var seen={},o=[];
+  sheetData.forEach(function(sh){sh.hdr.forEach(function(h){
+    if(!h||!LEGAL_PERSON.test(h))return;
+    var k=h.toLowerCase().replace(/\s+/g,' ').trim();
+    if(seen[k])return;seen[k]=1;o.push(h);
+  })});
+  return o.slice(0,40);
+}
+// A count of 2 in 12,000 rounds to 0%, which reads as "no risk". Say "<0.1%" instead.
+function sub(n,tot){
+  if(!tot||!n)return '0';
+  var p=n/tot*100;
+  return p<0.1?'<0.1':String(Math.round(p*10)/10);
+}
+function has(cat){return findings.some(function(f){return f.cat===cat});}
+function analyseFile(tot){
+  var A={rows:tot};
+  A.min=sheetData.length?minimisation():null;
+  A.sing=sheetData.length?singlingOut():null;
+  A.legal=sheetData.length?legalPersons():[];
+  A.art9=has('Art.9 Special');A.art10=has('Art.10 Criminal');
+  A.direct=has('Direct Identifier')||findings.some(function(f){return f.cat==='Value Pattern'&&/Email|Passport|NI Number|Card|IBAN/.test(f.label)});
+  A.indirect=has('Indirect Identifier');
+  A.financial=FINANCIAL.test(corpus);
+  A.behavioural=BEHAVIOURAL.test(corpus);
+  assess=A;
+  if(A.min)minFindings(A.min);
+}
+function minFindings(m){
+  m.dupSheets.forEach(function(d){
+    add({sheet:d.sheets[0].split(' (')[0],field:d.sheets.join(' / '),ci:'m:dsheet:'+d.sheets.join(),cat:'Minimisation',
+         label:'Sheets share an identical '+d.cols+'-column structure - likely duplicated copies of the same records',
+         sev:'Medium',samp:[],pct:null,aff:0,tot:0});
+  });
+  m.overlap.forEach(function(o){
+    add({sheet:o.a,field:o.a+' \u2192 '+o.b,ci:'m:ovl:'+o.a+o.b,cat:'Minimisation',
+         label:o.pct+'% of the distinct row signatures in "'+o.a+'" also occur in "'+o.b+'" - the same personal data is held twice',
+         sev:'High',samp:[o.rows.toLocaleString()+' of '+o.of.toLocaleString()+' signatures matched'],pct:o.pct,aff:o.rows,tot:0});
+  });
+  m.emptyCols.slice(0,30).forEach(function(c){
+    add({sheet:c.split(' \u00b7 ')[0],field:c.split(' \u00b7 ')[1],ci:'m:empty:'+c,cat:'Minimisation',
+         label:'Column is defined but never populated - collected without being used',sev:'Low',samp:[],pct:0,aff:0,tot:0});
+  });
+  m.dupCols.slice(0,20).forEach(function(c){
+    add({sheet:c.split(' \u00b7 ')[0],field:c.split(' \u00b7 ')[1],ci:'m:dcol:'+c,cat:'Minimisation',
+         label:'Two columns hold identical values - one copy is redundant',sev:'Low',samp:[],pct:null,aff:0,tot:0});
+  });
+}
+/* ENISA, Recommendations for a methodology of the assessment of severity of
+   personal data breaches (2013): SE = DPC x EI + CB. */
+function enisa(){
+  var A=assess,dpc=1,dl='Simple data';
+  if(A.art9||A.art10){dpc=4;dl='Sensitive data (Art. 9 / Art. 10)';}
+  else if(A.financial){dpc=3;dl='Financial data';}
+  else if(A.behavioural){dpc=2;dl='Behavioural data';}
+  var ei=0.25,el='Negligible';
+  if(A.direct){ei=1;el='Maximum - a direct identifier is present';}
+  else if(A.sing&&A.sing.unique&&A.sing.unique.length){ei=1;el='Maximum - a near-unique field singles out records';}
+  else if(A.sing&&A.sing.k!=null&&A.sing.k<5){ei=0.75;el='Significant - quasi-identifiers isolate groups smaller than 5';}
+  else if(A.indirect){ei=0.5;el='Limited - indirect identifiers only';}
+  var cb=(AIN.conf?0.25:0)+(AIN.integ?0.25:0)+(AIN.avail?0.25:0)+(AIN.mal?0.5:0);
+  var se=dpc*ei+cb;
+  var band=se<2?'Low':se<3?'Medium':se<4?'High':'Very high';
+  return {dpc:dpc,dl:dl,ei:ei,el:el,cb:cb,se:Math.round(se*100)/100,band:band};
+}
+/* NIST SP 800-122, section 3.2: six factors, each rated Low / Moderate / High.
+   The overall level is the highest factor (FIPS 199 high-water mark). */
+function nist(){
+  var A=assess,L=['Low','Moderate','High'],f=[];
+  f.push({k:'Identifiability',v:A.direct?2:(A.sing&&A.sing.k!=null&&A.sing.k<5)||A.indirect?1:0,
+          why:A.direct?'a direct identifier is present':A.indirect?'indirect identifiers only':'no identifier detected'});
+  f.push({k:'Quantity of PII',v:A.rows>=100000?2:A.rows>=1000?1:0,why:A.rows?A.rows.toLocaleString()+' rows scanned (rows, not distinct individuals)':'document, not a record set'});
+  f.push({k:'Sensitivity of PII',v:A.art9||A.art10?2:A.direct||A.financial?1:0,
+          why:A.art9||A.art10?'special category or criminal-offence data':A.financial?'financial data':'no special category detected'});
+  f.push({k:'Context of Use',v:AIN.nctx===''?null:+AIN.nctx,why:'',in:'nctx'});
+  f.push({k:'Obligation to Protect',v:AIN.nobl===''?null:+AIN.nobl,why:'',in:'nobl'});
+  f.push({k:'Access to and Location of PII',v:AIN.nacc===''?null:+AIN.nacc,why:'',in:'nacc'});
+  var known=f.filter(function(x){return x.v!=null}),mx=0;
+  known.forEach(function(x){if(x.v>mx)mx=x.v;});
+  return {factors:f,level:L[mx],partial:known.length<f.length,L:L};
+}
+/* Art. 35(3) and its (a)-(c) triggers. (b) is assessed from the file; the
+   others need a human, because a spreadsheet does not reveal the purpose. */
+function dpia(){
+  var A=assess,t=[];
+  var large=A.rows>=5000;
+  t.push({id:'Art. 35(3)(b)',hit:(A.art9||A.art10)&&large,auto:true,
+          txt:'Processing on a large scale of Art. 9 or Art. 10 data',
+          why:(A.art9||A.art10)?(large?'special category / criminal data over '+A.rows.toLocaleString()+' rows':'special category data present, but only '+A.rows.toLocaleString()+' rows - "large scale" is a judgement, not a threshold'):'no Art. 9 or Art. 10 data detected'});
+  t.push({id:'Art. 35(3)(a)',hit:AIN.profiling,auto:false,txt:'Systematic and extensive automated evaluation, including profiling, with legal or similarly significant effects'});
+  t.push({id:'Art. 35(3)(c)',hit:AIN.monitor,auto:false,txt:'Systematic monitoring of a publicly accessible area on a large scale'});
+  t.push({id:'WP248 rev.01',hit:AIN.vuln,auto:false,txt:'Data on vulnerable subjects, including the employer-employee imbalance'});
+  var hard=t.filter(function(x){return x.hit&&x.id!=='WP248 rev.01'}).length;
+  var soft=t.filter(function(x){return x.hit}).length;
+  var v=hard?'DPIA required':soft>=2?'DPIA likely required':soft?'DPIA advisable':'No trigger detected';
+  return {tr:t,verdict:v};
+}
+function basis(){
+  var A=assess,o=[];
+  o.push({need:'Art. 6(1) lawful basis',got:AIN.basis,req:true});
+  if(A.art9)o.push({need:'Art. 9(2) condition, in addition to the Art. 6 basis',got:AIN.cond9,req:true});
+  if(A.art10)o.push({need:'Official authority or Member State law authorising the processing (Art. 10)',got:AIN.auth10,req:true});
+  return o;
+}
+function setAin(k,v){AIN[k]=(v==='true'||v==='false')?(v==='true'):v;renderAssess();renderKPIs();}
+function ck(k,l){return '<label><input type="checkbox" '+(AIN[k]?'checked':'')+' onchange="setAin(\''+k+'\',this.checked?\'true\':\'false\')"> '+l+'</label>';}
+function sel3(k){
+  var L=['Low','Moderate','High'];
+  return '<select onchange="setAin(\''+k+'\',this.value)"><option value=""'+(AIN[k]===''?' selected':'')+'>not set</option>'+
+    L.map(function(x,i){return '<option value="'+i+'"'+(AIN[k]===String(i)?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
+}
+var BASIS6=['6(1)(a) consent','6(1)(b) contract','6(1)(c) legal obligation','6(1)(d) vital interests','6(1)(e) public task','6(1)(f) legitimate interests'];
+var COND9=['9(2)(a) explicit consent','9(2)(b) employment / social security law','9(2)(c) vital interests','9(2)(d) not-for-profit body','9(2)(e) made public by the subject','9(2)(f) legal claims','9(2)(g) substantial public interest','9(2)(h) health or social care','9(2)(i) public health','9(2)(j) archiving, research, statistics'];
+var AUTH10=['Official authority (public body, law enforcement)','Member State law with safeguards','Neither - no authorisation identified'];
+function selOpt(k,arr){
+  return '<select onchange="setAin(\''+k+'\',this.value)"><option value=""'+(AIN[k]===''?' selected':'')+'>not set</option>'+
+    arr.map(function(x){return '<option'+(AIN[k]===x?' selected':'')+'>'+eh(x)+'</option>'}).join('')+'</select>';
+}
+function yin(){return '<span class="yin">your input</span>';}
+function renderAssess(){
+  var el=document.getElementById('assessBody');
+  if(!el||!assess)return;
+  var A=assess,h='';
+  // Art. 5(1)(c)
+  h+='<div class="asec"><h4>Data minimisation</h4><div class="cite">Art. 5(1)(c) - adequate, relevant and limited to what is necessary</div>';
+  if(!A.min)h+='<p>Not assessed. Minimisation is measured across sheets and columns, so it only applies to tabular files.</p>';
+  else{
+    var m=A.min,any=false;
+    if(m.overlap.length){any=true;h+='<p><strong style="color:#fb923c">Duplicated records.</strong> '+m.overlap.map(function(o){return o.pct+'% of the distinct row signatures in "'+eh(o.a)+'" ('+o.rows.toLocaleString()+' of '+o.of.toLocaleString()+') also occur in "'+eh(o.b)+'"'}).join('; ')+'. Holding the same personal data twice is more than is necessary.</p>';}
+    if(m.dupSheets.length){any=true;h+='<p><strong style="color:#fb923c">Identical sheet structures.</strong> '+m.dupSheets.map(function(d){return eh(d.sheets.join(' / '))}).join('; ')+'.</p>';}
+    if(m.emptyCols.length){any=true;h+='<p><strong>'+m.emptyCols.length+' column'+(m.emptyCols.length===1?'':'s')+' never populated:</strong> '+m.emptyCols.slice(0,12).map(function(c){return '<span class="pill">'+eh(c)+'</span>'}).join('')+(m.emptyCols.length>12?' +'+(m.emptyCols.length-12)+' more':'')+'</p>';}
+    if(m.dupCols.length){any=true;h+='<p><strong>Redundant columns:</strong> '+m.dupCols.slice(0,8).map(function(c){return '<span class="pill">'+eh(c)+'</span>'}).join('')+'</p>';}
+    if(!any)h+='<p>No duplicated sheets, redundant columns or unpopulated columns found.</p>';
+  }
+  h+='</div>';
+  // WP216
+  h+='<div class="asec"><h4>Singling out</h4><div class="cite">Recital 26 and WP29 Opinion 05/2014 (WP216) - identifiability by singling out, linkability and inference</div>';
+  if(!A.sing)h+='<p>Not assessed. Singling out is measured over rows, so it only applies to tabular files.</p>';
+  else if(!A.sing.used.length&&!A.sing.unique.length)h+='<p>No quasi-identifier columns with usable cardinality were found in <span class="pill">'+eh(A.sing.sheet)+'</span>.</p>';
+  else{
+    var g=A.sing;
+    if(g.unique.length)h+='<p><strong style="color:#f87171">Single-column singling out.</strong> '+g.unique.map(function(u){return '<span class="pill">'+eh(u.field)+'</span> '+u.distinct.toLocaleString()+' distinct values over '+u.rows.toLocaleString()+' rows'}).join(', ')+' - almost every row is distinguishable on this field alone.</p>';
+    if(g.k!=null){
+      h+='<div class="mtr"><div><div class="mk">k (smallest group)</div><div class="mv" style="color:'+(g.k<5?'#f87171':'#4ade80')+'">'+g.k+'</div></div>'+
+         '<div><div class="mk">Combinations</div><div class="mv">'+g.classes.toLocaleString()+'</div></div>'+
+         '<div><div class="mk">Rows in groups &lt;5</div><div class="mv">'+g.nLt5.toLocaleString()+'<span style="font-size:11px;color:#64748b"> / '+g.pctLt5+'%</span></div></div>'+
+         '<div><div class="mk">Rows unique</div><div class="mv">'+g.nUnique.toLocaleString()+'<span style="font-size:11px;color:#64748b"> / '+g.pctUnique+'%</span></div></div></div>';
+      h+='<p>Measured on <span class="pill">'+eh(g.sheet)+'</span> over '+g.rows.toLocaleString()+' rows using '+g.used.map(function(x){return '<span class="pill">'+eh(x)+'</span>'}).join('')+
+         ' \u2014 k='+g.k+' means the rarest combination of those values is shared by '+g.k+' record'+(g.k===1?'':'s')+'. '+
+         (g.k<5?'Combinations below 5 are generally treated as re-identifiable, so this data is not anonymous and remains in scope.':'No combination isolates fewer than 5 records, which weakens but does not remove identifiability.')+'</p>';
+      h+='<p style="color:#64748b">k-anonymity is one test. WP216 also asks about linkability to other datasets and inference, neither of which can be judged from a single file.</p>';
+    }
+  }
+  h+='</div>';
+  // Recital 14
+  h+='<div class="asec"><h4>Legal persons</h4><div class="cite">Recital 14 - the Regulation does not cover the processing of data concerning legal persons</div>';
+  if(!A.legal.length)h+='<p>No columns that look like company, carrier or facility identifiers were found.</p>';
+  else h+='<p>These columns look like they describe organisations or sites rather than people, so they are likely out of scope: '+A.legal.map(function(x){return '<span class="pill">'+eh(x)+'</span>'}).join('')+'</p><p style="color:#64748b">Check them before excluding. A sole trader or owner-operator is a natural person, and a small carrier name can identify its owner.</p>';
+  h+='</div>';
+  // ENISA
+  var e=enisa();
+  h+='<div class="asec"><h4>Breach severity if this file were exposed</h4><div class="cite">ENISA, Recommendations for a methodology of the assessment of severity of personal data breaches (2013): SE = DPC \u00d7 EI + CB</div>';
+  h+='<div class="mtr"><div><div class="mk">DPC</div><div class="mv">'+e.dpc+'</div></div>'+
+     '<div><div class="mk">EI</div><div class="mv">'+e.ei+'</div></div>'+
+     '<div><div class="mk">CB</div><div class="mv">'+e.cb+'</div></div>'+
+     '<div><div class="mk">SE</div><div class="mv" style="color:'+(e.se>=4?'#f87171':e.se>=3?'#fb923c':e.se>=2?'#fbbf24':'#4ade80')+'">'+e.se+'</div></div>'+
+     '<div><div class="mk">Severity</div><div class="mv" style="color:'+(e.se>=4?'#f87171':e.se>=3?'#fb923c':e.se>=2?'#fbbf24':'#4ade80')+'">'+e.band+'</div></div></div>';
+  h+='<p><strong>DPC</strong> '+e.dpc+' - '+e.dl+'. <strong>EI</strong> '+e.ei+' - '+e.el+'.</p>';
+  h+='<p><strong>CB</strong> describes a breach that has happened, so it is 0 until you say otherwise'+yin()+'<br>'+
+     ck('conf','Loss of confidentiality (+0.25)')+ck('integ','Loss of integrity (+0.25)')+ck('avail','Loss of availability (+0.25)')+ck('mal','Malicious intent (+0.5)')+'</p>';
+  h+='<p style="color:#64748b">Bands: SE&lt;2 low, 2-3 medium, 3-4 high, 4 and above very high. ENISA also allows contextual adjustment of DPC by \u00b10.25 to \u00b11 based on volume, criticality and identifiability aids; that judgement is not automated here.</p></div>';
+  // NIST
+  var n=nist();
+  h+='<div class="asec"><h4>PII confidentiality impact level</h4><div class="cite">NIST SP 800-122, section 3.2 - six factors, overall level is the highest of them</div>';
+  h+='<div style="overflow-x:auto"><table style="font-size:12px"><thead><tr><th>Factor</th><th>Level</th><th>Basis</th></tr></thead><tbody>';
+  n.factors.forEach(function(f){
+    var lv=f.v==null?'<span style="color:#64748b">not set</span>':'<span class="b2 '+(f.v===2?'bc':f.v===1?'bm':'bl')+'">'+n.L[f.v]+'</span>';
+    h+='<tr><td>'+f.k+'</td><td>'+(f.in?sel3(f.in):lv)+'</td><td style="color:#94a3b8">'+f.why+(f.in?yin():'')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<p style="margin-top:8px"><strong>Overall: '+n.level+'</strong>'+(n.partial?' - provisional, based only on the factors set above.':'')+'</p></div>';
+  // DPIA
+  var d=dpia();
+  h+='<div class="asec"><h4>Is a DPIA required?</h4><div class="cite">Art. 35(3) and WP248 rev.01 criteria</div>';
+  h+='<p style="font-size:14px;color:'+(d.verdict==='DPIA required'?'#f87171':d.verdict==='No trigger detected'?'#4ade80':'#fb923c')+';font-weight:700">'+d.verdict+'</p>';
+  d.tr.forEach(function(t){
+    h+='<p>'+(t.hit?'<span style="color:#f87171">\u25cf</span>':'<span style="color:#4b5563">\u25cb</span>')+' <strong>'+t.id+'</strong> '+t.txt+
+       (t.why?'<br><span style="color:#64748b;margin-left:14px">'+eh(t.why)+'</span>':'')+'</p>';
+  });
+  h+='<p>'+yin()+'<br>'+ck('profiling','Automated evaluation or profiling with significant effects')+ck('monitor','Systematic monitoring of a public area')+ck('vuln','Data subjects are employees or otherwise vulnerable')+'</p>';
+  h+='<p style="color:#64748b">"Large scale" has no numeric threshold in the GDPR. The 5,000-row line used above is this tool\'s heuristic, not law. Your supervisory authority may also publish an Art. 35(4) mandatory list.</p></div>';
+  // Lawful basis
+  h+='<div class="asec"><h4>Lawful basis</h4><div class="cite">Art. 6(1)'+(A.art9?', Art. 9(2)':'')+(A.art10?', Art. 10':'')+'</div>';
+  h+='<p>A file cannot tell you why it is being processed, so this is a record of your answer, not a test result.'+yin()+'</p>';
+  basis().forEach(function(b){
+    var k=b.need.indexOf('9(2)')>=0?'cond9':b.need.indexOf('Art. 10')>=0?'auth10':'basis';
+    var arr=k==='cond9'?COND9:k==='auth10'?AUTH10:BASIS6;
+    h+='<p>'+(AIN[k]?'<span style="color:#4ade80">\u25cf</span>':'<span style="color:#fbbf24">\u25cb</span>')+' '+eh(b.need)+'<br>'+selOpt(k,arr)+'</p>';
+  });
+  if(A.art9)h+='<p style="color:#64748b">Art. 9 data needs both an Art. 6(1) basis and a separate Art. 9(2) condition. Consent alone under Art. 6 is not enough.</p>';
+  if(A.art10)h+='<p style="color:#64748b">Art. 10 data may only be processed under the control of official authority or where authorised by Union or Member State law providing appropriate safeguards.</p>';
+  if(AIN.auth10===AUTH10[2])h+='<p style="color:#f87171">You have recorded that no authorisation exists. Art. 10 processing without one has no lawful route.</p>';
+  h+='</div>';
+  el.innerHTML=h;
 }
 
 

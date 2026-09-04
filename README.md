@@ -22,7 +22,8 @@ No signup. No server. No data ever leaves your browser.
 <p align="center">
   <img src="screenshots/home.png" alt="GDPR Compliance Scanner — home page" width="800"><br><br>
   <img src="screenshots/scanner.png" alt="GDPR Compliance Scanner — upload screen" width="800"><br><br>
-  <img src="screenshots/results.png" alt="GDPR Compliance Scanner — results for a four-sheet workbook" width="800">
+  <img src="screenshots/results.png" alt="GDPR Compliance Scanner — results for a four-sheet workbook" width="800"><br><br>
+  <img src="screenshots/analysis.png" alt="Compliance analysis — minimisation, singling out, ENISA severity, NIST impact level, DPIA screening" width="800">
 </p>
 
 <p align="center"><em>Results above are from a synthetic demo workbook, not real data.</em>
@@ -48,7 +49,10 @@ PDF · Word · PowerPoint · images (OCR)"] --> B["🔎 Header pass
 9 regex patterns, 200 sampled rows/column"]
     C --> D["📊 Severity ranking
 Critical / High / Medium / Low"]
-    D --> E["📋 Dashboard
+    D --> E["⚖️ Compliance analysis
+minimisation · k-anonymity
+ENISA severity · NIST impact · DPIA"]
+    E --> F["📋 Dashboard
 findings · article refs · export"]
 ```
 
@@ -63,8 +67,16 @@ findings · article refs · export"]
 
    Findings are grouped into six categories: **Art. 9 Special** (health, biometric, genetic, racial/ethnic, religious, political, sexual orientation), **Art. 10 Criminal** (allegations, offence type/MO, investigation and disciplinary case records), **Direct Identifier**, **Indirect Identifier**, **Value Pattern**, and **Retention** (Art. 5(1)(e) storage limitation — flags date columns whose newest record is 24+ months old).
 4. **Read the dashboard** — KPI cards, a coverage banner naming every sheet read and skipped, a severity ring, category breakdown, and a sortable, filterable findings table showing the **GDPR article each finding engages**.
-5. **Export the report** — one click downloads a standalone HTML report you can attach to an email, ticket, or review file.
-6. **(Optional) Install it as an app** — it's a PWA, so it can run offline once installed (see links below).
+5. **Read the compliance analysis** — six assessments computed from the same file:
+   - **Data minimisation (Art. 5(1)(c))** — duplicated sheets, duplicated rows across sheets, redundant columns holding identical values, and columns defined but never populated.
+   - **Singling out (Recital 26, WP216)** — k-anonymity over the detected quasi-identifiers: the size of the smallest group, how many rows sit in groups below 5, and which single columns are near-unique on their own.
+   - **Legal persons (Recital 14)** — columns that look like organisation rather than person identifiers, flagged as likely out of scope with the sole-trader caveat.
+   - **Breach severity (ENISA 2013)** — `SE = DPC × EI + CB`, with DPC and EI derived from the file and CB set by you if a breach has actually occurred.
+   - **PII confidentiality impact (NIST SP 800-122 §3.2)** — six factors, three read from the file, three you set; overall level is the highest of them.
+   - **DPIA trigger (Art. 35(3))** — Art. 35(3)(b) assessed from the file, (a) and (c) plus WP248 vulnerable-subject criteria from your answers.
+   - **Lawful basis** — an Art. 6(1) picker, plus the Art. 9(2) condition and Art. 10 authorisation prompts when that data is present. Recorded, not tested.
+6. **Export the report** — one click downloads a standalone HTML report you can attach to an email, ticket, or review file, including the full compliance analysis.
+7. **(Optional) Install it as an app** — it's a PWA, so it can run offline once installed (see links below).
 
    The Risk Score is an **internal triage heuristic**, not a legal or standardised measure. See [Limitations](#limitations).
 
@@ -89,6 +101,11 @@ findings · article refs · export"]
 | **Detects** | Emails, IBANs, credit cards, UK NI numbers, phone numbers, GPS coordinates, dates of birth, passport numbers, IP addresses, and Art. 9 special categories (health, race, religion, biometric, genetic, criminal conviction data) |
 | **Severity ranking** | Critical / High / Medium / Low, each finding labelled with the GDPR article it engages, rolled up into a triage Risk Score /100 |
 | **Retention check** | Flags date columns whose newest record is 24+ months old, as an Art. 5(1)(e) prompt |
+| **Minimisation check** | Detects sheets that duplicate each other's rows, columns holding identical values, and columns that are never populated — Art. 5(1)(c) |
+| **k-anonymity** | Computes the smallest equivalence class over the detected quasi-identifiers, so you can see whether the data is genuinely re-identifiable — Recital 26 / WP216 |
+| **ENISA breach severity** | `SE = DPC × EI + CB` from the 2013 ENISA methodology, not an invented weighting |
+| **NIST SP 800-122 impact level** | The six §3.2 factors, three derived from the file and three you set, rolled up on the FIPS 199 high-water mark |
+| **DPIA screening** | Art. 35(3)(a)–(c) and WP248 rev.01 criteria, with (b) assessed automatically from the data present and the row count |
 | **Dashboard** | KPI cards, coverage banner, severity ring, category breakdown, sortable/filterable findings table |
 | **Exportable HTML report** | Generated entirely client-side, no server round-trip |
 | **PWA** | Installable, works offline, network-first service worker so updates are never stuck behind a stale cache |
@@ -112,6 +129,7 @@ Each finding is labelled with the article it engages. The mapping is by category
 | Indirect Identifier | **Art. 4(1)** + **Recital 26** | Gender, age, location, employment/HR data, login, device ID — identifying by *singling out* rather than directly |
 | Value Pattern | **Art. 4(1)** | Identifiers found by matching cell values, not column names |
 | Retention | **Art. 5(1)(e)** | Date columns whose newest record is 24+ months old |
+| Minimisation | **Art. 5(1)(c)** | Duplicated sheets and rows, redundant columns, columns never populated |
 
 Severity ranking is ordered **Critical → High → Medium → Low**. Note that criminal conviction and offence data falls under **Art. 10 only** — not Art. 9, which is a distinction this tool makes deliberately and many summaries get wrong.
 
@@ -122,10 +140,15 @@ Being explicit about what this tool **cannot** conclude, because that boundary m
 - **The rule set is a heuristic, not a certified taxonomy.** No published standard maps column names to GDPR categories. The 35 field rules and 9 value patterns are hand-written judgement calls. They will produce false positives and will miss data that is personal only in context.
 - **The Risk Score is not a legal or standardised measure.** No EU instrument defines a 0–100 GDPR score. The severity weights are internal to this tool, chosen for triage ordering. Do not present the number as a compliance rating.
 - **Findings are per column, but GDPR applies to the record.** A date column is not criminal-offence data on its own; it becomes Art. 10 data because of the record it sits in. Column-level attribution is a modelling simplification.
-- **It does not assess lawfulness.** No evaluation of Art. 6 lawful basis, the Art. 9(2) conditions, or the Art. 10 requirement for official authority or a Member State law authorising the processing — which is usually the determinative question.
-- **It does not evaluate Art. 35 DPIA triggers**, Art. 30 records of processing, or Art. 13/14 transparency obligations.
+- **It records your lawful basis, it does not judge it.** The Art. 6(1), Art. 9(2) and Art. 10 pickers capture what you say the basis is and tell you when a second condition is required. Whether that basis actually holds is a legal judgement the tool never makes.
+- **DPIA screening is partly your answer.** Only Art. 35(3)(b) is assessed from the file. "Large scale" is judged by a 5,000-row heuristic that appears nowhere in the Regulation, and Art. 35(4) national mandatory lists are not consulted.
+- **Three of the six NIST factors are yours to set.** Context of use, obligation to protect and access/location cannot be read from a file. Until you set them the overall level is provisional.
+- **ENISA's contextual adjustment is not automated.** DPC is derived from the categories detected; the ±0.25 to ±1 adjustment for volume, criticality and identifiability aids is left to you.
+- **k-anonymity is one identifiability test, not the whole of WP216.** Linkability to other datasets and inference cannot be judged from a single file, and the score is computed on the largest sheet only, over at most five quasi-identifiers and 20,000 rows.
+- **Minimisation is measured structurally.** Duplicate detection compares row signatures, so a near-duplicate with one edited cell reads as distinct, and an "unused" column may be populated below the 400-row sample.
+- **It does not evaluate Art. 30** records of processing or **Art. 13/14** transparency obligations.
 - **It does not detect international transfers (Chapter V).** A file can look clean per column and still be an unlawful transfer because of who accesses it and from where.
-- **It cannot tell personal data from company data.** Business identifiers such as carrier codes are flagged the same way, even though GDPR does not apply to legal persons (Recital 14).
+- **The legal-person flag is a prompt, not a conclusion.** Columns that look like organisation identifiers are highlighted under Recital 14, but a sole trader or owner-operator is a natural person and a small carrier name can identify its owner.
 - **A retention flag is a question, not a violation.** Stale dates only matter against a stated purpose and retention period, which the tool cannot see.
 - **National law is out of scope** — Art. 88 employment provisions, works-council co-determination, and sector rules all sit outside what a file scan can see.
 
@@ -138,17 +161,29 @@ is worthless if it implies rigour that isn't in the code.
 
 ### Implemented
 
-Only these five provisions are encoded. Each one drives a category label or a real check:
+Each of these drives a category label, a computed check, or a recorded answer in the app:
 
 | Provision | Where it appears in the tool |
 |---|---|
 | **Art. 4(1)** — definition of personal data | Article label on Direct Identifier, Indirect Identifier and Value Pattern findings |
 | **Art. 9(1)** — special categories | The `Art.9 Special` category and its 8 detection rules |
-| **Art. 10** — criminal convictions and offences | The `Art.10 Criminal` category and its 4 detection rules |
+| **Art. 10** — criminal convictions and offences | The `Art.10 Criminal` category and its 4 detection rules; plus the authorisation prompt in the lawful-basis section |
+| **Art. 5(1)(c)** — data minimisation | The `Minimisation` check: cross-sheet row-signature overlap, identical sheet structures, redundant columns, columns never populated |
 | **Art. 5(1)(e)** — storage limitation | The `Retention` check: date columns whose newest record is 24+ months old |
-| **Recital 26** — identifiability by singling out | The rationale for splitting direct from indirect identifiers |
+| **Art. 6(1)** — lawful basis | A six-option picker; recorded, and used to flag when Art. 9(2) or Art. 10 needs a second condition |
+| **Art. 9(2)** — conditions for special categories | A ten-option picker, shown only when Art. 9 data is detected |
+| **Art. 35(3)** — DPIA | Trigger screening: (b) assessed from the file, (a) and (c) from your answers |
+| **Recital 14** — legal persons | Columns that look like organisation identifiers flagged as likely out of scope |
+| **Recital 26** — identifiability by singling out | Direct/indirect split, and the k-anonymity computation |
 
-Source: [Regulation (EU) 2016/679, consolidated text — EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj).
+| External method | Where it appears in the tool |
+|---|---|
+| [ENISA, *Methodology for the assessment of severity of personal data breaches* (2013)](https://www.enisa.europa.eu/publications/dbn-severity) | `SE = DPC × EI + CB`, with the published DPC bands (simple 1 / behavioural 2 / financial 3 / sensitive 4), EI values (0.25 / 0.5 / 0.75 / 1) and severity bands (<2 low, 2–3 medium, 3–4 high, ≥4 very high) |
+| [NIST SP 800-122](https://csrc.nist.gov/pubs/sp/800/122/final) | The six §3.2 factors rated Low / Moderate / High, rolled up on the FIPS 199 high-water mark |
+| [WP29 Opinion 05/2014 on Anonymisation (WP216)](https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/files/2014/wp216_en.pdf) | Singling out, implemented as k-anonymity over the detected quasi-identifiers |
+| [WP29 WP248 rev.01, DPIA guidelines](https://ec.europa.eu/newsroom/article29/items/611236) | The vulnerable-data-subject criterion in the DPIA screening |
+
+Source for the Regulation: [Regulation (EU) 2016/679, consolidated text — EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj).
 
 ### Not implemented
 
@@ -157,18 +192,15 @@ a rigorous version would come from:
 
 | Source | What it would give the tool | Status |
 |---|---|---|
-| [ENISA, *Methodology for the assessment of severity of personal data breaches* (2013)](https://www.enisa.europa.eu/publications/dbn-severity) | The established European severity method, `SE = DPC × EI + CB` | **Not used.** Severity here is a flat weighting (`Critical 20 / High 12 / Medium 6 / Low 2`) chosen for triage ordering |
-| [NIST SP 800-122](https://csrc.nist.gov/pubs/sp/800/122/final) | PII confidentiality impact levels from six named factors | **Not used.** This tool uses four levels and none of those factors |
-| [ISO/IEC 29100:2011, *Privacy framework*](https://www.iso.org/standard/45123.html) | A standardised PII / sensitive-PII taxonomy | **Not used.** Categories here are GDPR-shaped. Paywalled, and not consulted |
-| [ISO/IEC 27701:2019, *Privacy information management*](https://www.iso.org/standard/71670.html) | A privacy-controls crosswalk | **Not present.** There is no controls crosswalk in this tool |
-| [WP29 Opinion 05/2014 on Anonymisation (WP216)](https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/files/2014/wp216_en.pdf) | Singling out, linkability and inference tests; quasi-identifier combination | **Not used.** No linkability, inference or k-anonymity analysis |
-| [ICO, *What is personal data?*](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/personal-information-what-is-it/what-is-personal-data/) | Practical identifiability guidance | **Not encoded** |
+| [ISO/IEC 29100:2011, *Privacy framework*](https://www.iso.org/standard/45123.html) | A standardised PII / sensitive-PII taxonomy | **Not used.** Categories here are GDPR-shaped. The standard is paywalled and has not been consulted, so no claim of conformance is made |
+| [ISO/IEC 27701:2019, *Privacy information management*](https://www.iso.org/standard/71670.html) | A privacy-controls crosswalk | **Not present.** Paywalled and not consulted. A crosswalk written without the control text would be fabrication, so none is offered |
+| [ICO, *What is personal data?*](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/personal-information-what-is-it/what-is-personal-data/) | Practical identifiability guidance | **Not encoded.** Useful reading, but guidance rather than a specification there is anything to implement against |
+| **GDPR Chapter V** — international transfers | Whether a transfer is lawful | **Not assessed.** This depends on who accesses the file and from where, which a file scan cannot see |
+| **GDPR Art. 30, Art. 13/14** | Records of processing, transparency obligations | **Not assessed** |
+| **WP216 linkability and inference** | The other two identifiability tests | **Not assessed.** Both require datasets beyond the one uploaded |
 
-Likewise **Art. 5(1)(c)** (minimisation), **Art. 6** (lawful basis), **Art. 35** (DPIA) and
-**Recital 14** (GDPR does not apply to legal persons) are *discussed* in this README but are
-**not checked by the tool**. Art. 6 appears in the app only as explanatory text.
-
-The 0–100 Risk Score is defined by none of the above. It is internal to this tool.
+The 0–100 Risk Score is defined by none of the above. It is internal to this tool, and is
+separate from the ENISA severity and NIST impact level, which are not invented.
 
 ## Privacy
 
