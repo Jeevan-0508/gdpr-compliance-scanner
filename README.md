@@ -7,9 +7,10 @@
 **Scan any data file for GDPR risk in under a minute.**
 No signup. No server. No data ever leaves your browser.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-jeevan--0508.github.io-4f46e5?style=for-the-badge)](https://jeevan-0508.github.io/gdpr-compliance-scanner/gdpr_scanner.html)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-jeevan--0508.github.io-4f46e5?style=for-the-badge)](https://jeevan-0508.github.io/gdpr-compliance-scanner/)
 [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)](LICENSE)
-[![Stack](https://img.shields.io/badge/Stack-Vanilla%20JS%20%7C%20No%20Deps-22c55e?style=for-the-badge)](#tech-stack)
+[![Stack](https://img.shields.io/badge/Stack-Vanilla%20JS%20%7C%20Single%20File-22c55e?style=for-the-badge)](#tech-stack)
+[![Formats](https://img.shields.io/badge/Formats-25-0ea5e9?style=for-the-badge)](#usage)
 [![PWA](https://img.shields.io/badge/PWA-Installable-818cf8?style=for-the-badge)](#tech-stack)
 
 </div>
@@ -18,7 +19,11 @@ No signup. No server. No data ever leaves your browser.
 
 <p align="center">
   <img src="screenshots/home.png" alt="GDPR Compliance Scanner — home page" width="800"><br><br>
-  <img src="screenshots/scanner.png" alt="GDPR Compliance Scanner — upload screen" width="800">
+  <img src="screenshots/scanner.png" alt="GDPR Compliance Scanner — upload screen" width="800"><br><br>
+  <img src="screenshots/results.png" alt="GDPR Compliance Scanner — results for a four-sheet workbook" width="800">
+</p>
+
+<p align="center"><em>Results above are from a synthetic demo workbook, not real data.</em>
 </p>
 
 ## The problem

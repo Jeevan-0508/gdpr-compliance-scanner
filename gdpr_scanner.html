@@ -258,7 +258,7 @@ tr:hover td{background:#1e293b55}
   <div class="scanner-top">
     <h2>&#128274; GDPR Compliance Scanner</h2>
     <p>Upload a data file to detect personal data fields and assess compliance risk</p>
-    <p style="font-size:11px;color:#475569;margin-top:-6px">Build <strong id="buildTag" style="color:#818cf8">2.1</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; Art.9 + Art.10 + retention rules &nbsp;·&nbsp; 25 file formats</p>
+    <p style="font-size:11px;color:#c7d2fe;opacity:.75;margin:6px 0 0">Build <strong id="buildTag" style="color:#fff">2.1</strong> &nbsp;·&nbsp; scans every sheet &nbsp;·&nbsp; Art.9 + Art.10 + retention rules &nbsp;·&nbsp; 25 file formats</p>
   </div>
   <div id="uploadSection">
     <div class="drop-zone" id="dropZone">
@@ -360,8 +360,8 @@ var VRULES=[
   {pat:/^[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}$/,label:'IBAN',cat:'Value Pattern',sev:'Critical'},
   {pat:/^\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}$/,label:'Card Number',cat:'Value Pattern',sev:'Critical'},
   {pat:/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,label:'IP Address',cat:'Value Pattern',sev:'High'},
-  {pat:/^-?\d{1,3}\.\d{3,}$/,label:'GPS Coordinate',cat:'Value Pattern',sev:'High'},
-  {pat:/^(?:19|20)\d{2}[-\/]\d{2}[-\/]\d{2}$|^\d{2}[-\/]\d{2}[-\/](?:19|20)\d{2}$/,label:'Date of Birth',cat:'Value Pattern',sev:'High'},
+  {pat:/^-?\d{1,3}\.\d{3,}$/,label:'GPS Coordinate',cat:'Value Pattern',sev:'High',onlyIf:/lat|lon|lng|coord|gps|geo|position|location/i},
+  {pat:/^(?:19|20)\d{2}[-\/]\d{2}[-\/]\d{2}$|^\d{2}[-\/]\d{2}[-\/](?:19|20)\d{2}$/,label:'Date of Birth',cat:'Value Pattern',sev:'High',skipIf:/date|\bday\b|\bmonth\b|\byear\b|timestamp|created|updated|escalat|quarter|week/i},
   {pat:/^[A-Z]{2}\s?\d{6}\s?[A-Z]$/,label:'NI Number',cat:'Value Pattern',sev:'Critical'}
 ];
 // Unanchored variants used for free-text documents (PDF / Word / OCR / plain text)
@@ -376,6 +376,7 @@ var DRULES=[
   {pat:/\b[A-Z]{2}\s?\d{6}\s?[A-Z]\b/g,label:'NI Number',sev:'Critical'},
   {pat:/\b[A-Z]{1,2}\d{6,8}\b/g,label:'Passport-like ID',sev:'High'}
 ];
+var ISO_DATE=/^(?:19|20)\d{2}-\d{2}-\d{2}$/;
 var SO={Critical:4,High:3,Medium:2,Low:1};
 var findings=[],stats={},meta={},chartInst=null,sc=0,sa=true,seenKeys={};
 var PDFJS_URL='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
@@ -534,8 +535,12 @@ function parseCSV(t,s){
   for(;i<t.length;i++){var c=t[i];if(q){if(c==='"'&&t[i+1]==='"'){cur+='"';i++;}else if(c==='"'){q=false;}else cur+=c;}else{if(c==='"'){q=true;}else if(c===s){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else if(c!=='\r'){cur+=c;}}}
   if(cur||row.length){row.push(cur);rows.push(row);}return rows;
 }
+function cellStr(v){
+  if(v instanceof Date)return isNaN(v.getTime())?'':v.toISOString().slice(0,10);
+  return String(v==null?'':v).trim();
+}
 function real(v){
-  v=String(v==null?'':v).trim();
+  v=cellStr(v);
   return v!==''&&!/^(na|n\/a|n\.a\.?|null|nil|none|-{1,2}|#n\/a|#null!|unknown|tbd|blank|not applicable)$/i.test(v);
 }
 function asDate(v){
@@ -560,7 +565,7 @@ function scanWorkbook(sheets,fn){
   sheets.forEach(function(sh){
     var rows=sh.rows||[];
     var hdr=(rows[0]||[]).map(function(h){return String(h==null?'':h).trim()});
-    var dr=rows.slice(1).filter(function(r){return r.some(function(c){return String(c==null?'':c).trim()!==''})});
+    var dr=rows.slice(1).filter(function(r){return r.some(function(c){return cellStr(c)!==''})});
     if(!hdr.some(function(h){return h!==''})||!dr.length){skipped.push(sh.name||'(sheet)');return;}
     done.push(sh.name||'(single sheet)');
     tot+=dr.length;cols+=hdr.length;
@@ -578,18 +583,21 @@ function scanSheet(sheet,hdr,dr){
     HRULES.forEach(function(rule){
       if(!rule.pat.test(h))return;
       var s=[];
-      for(var j=0;j<cap&&s.length<5;j++){var v=String(dr[j][i]==null?'':dr[j][i]).trim();if(real(v))s.push(v);}
+      for(var j=0;j<cap&&s.length<5;j++){var v=cellStr(dr[j][i]);if(real(v))s.push(v);}
       var p=pct(dr,i);
       add({sheet:sheet,field:h,ci:i,cat:rule.cat,label:rule.label,sev:rule.sev,samp:s,pct:p,aff:Math.round(tot*p/100),tot:tot});
     });
   });
   VRULES.forEach(function(rule){
     for(var i=0;i<hdr.length;i++){
+      if(rule.skipIf&&rule.skipIf.test(hdr[i]))continue;
+      if(rule.onlyIf&&!rule.onlyIf.test(hdr[i]))continue;
       var mc=0,s=[],n=0;
       for(var j=0;j<Math.min(dr.length,200);j++){
-        var v=String(dr[j][i]==null?'':dr[j][i]).trim();
+        var v=cellStr(dr[j][i]);
         if(!real(v))continue;
         n++;
+        if(ISO_DATE.test(v)&&rule.label!=='Date of Birth')continue;
         if(rule.pat.test(v)){mc++;if(s.length<5)s.push(v);}
       }
       var rate=n>0?mc/n:0;
