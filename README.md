@@ -117,7 +117,7 @@ Severity ranking is ordered **Critical → High → Medium → Low**. Note that 
 
 ## Limitations
 
-Being explicit about what this tool **cannot** conclude, because that boundary matters more than the feature list:
+Being explicit about what this tool **cannot** conclude, because that boundary matters more than the feature list. [Sources](#sources) states separately which provisions are actually implemented and which are not.
 
 - **The rule set is a heuristic, not a certified taxonomy.** No published standard maps column names to GDPR categories. The 35 field rules and 9 value patterns are hand-written judgement calls. They will produce false positives and will miss data that is personal only in context.
 - **The Risk Score is not a legal or standardised measure.** No EU instrument defines a 0–100 GDPR score. The severity weights are internal to this tool, chosen for triage ordering. Do not present the number as a compliance rating.
@@ -133,20 +133,42 @@ Being explicit about what this tool **cannot** conclude, because that boundary m
 
 ## Sources
 
-Article references follow the primary text; the severity and identifiability reasoning follows the secondary sources below.
+Split into what the tool **actually implements** and what it does not, because a citation list
+is worthless if it implies rigour that isn't in the code.
 
-**Primary**
-- [Regulation (EU) 2016/679 (GDPR), consolidated text — EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj) — Art. 4(1), Art. 5(1)(c) and (e), Art. 6, Art. 9, Art. 10, Art. 35, Recitals 14 and 26
+### Implemented
 
-**Secondary**
-- [ENISA, *Recommendations for a methodology of the assessment of severity of personal data breaches* (2013)](https://www.enisa.europa.eu/publications/dbn-severity) — the established European method for grading personal-data severity
-- [NIST SP 800-122, *Guide to Protecting the Confidentiality of PII*](https://csrc.nist.gov/pubs/sp/800/122/final) — PII confidentiality impact levels
-- [ISO/IEC 29100:2011, *Privacy framework*](https://www.iso.org/standard/45123.html) — PII and sensitive-PII definitions
-- [ISO/IEC 27701:2019, *Privacy information management*](https://www.iso.org/standard/71670.html) — privacy controls crosswalk
-- [Article 29 Working Party, Opinion 05/2014 on Anonymisation Techniques (WP216)](https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/files/2014/wp216_en.pdf) — singling out, linkability, inference
-- [ICO, *What is personal data?*](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/personal-information-what-is-it/what-is-personal-data/) — practical identifiability guidance
+Only these five provisions are encoded. Each one drives a category label or a real check:
 
-Where this tool's behaviour departs from those sources — most visibly the 0–100 score, which none of them define — that is called out in [Limitations](#limitations).
+| Provision | Where it appears in the tool |
+|---|---|
+| **Art. 4(1)** — definition of personal data | Article label on Direct Identifier, Indirect Identifier and Value Pattern findings |
+| **Art. 9(1)** — special categories | The `Art.9 Special` category and its 8 detection rules |
+| **Art. 10** — criminal convictions and offences | The `Art.10 Criminal` category and its 4 detection rules |
+| **Art. 5(1)(e)** — storage limitation | The `Retention` check: date columns whose newest record is 24+ months old |
+| **Recital 26** — identifiability by singling out | The rationale for splitting direct from indirect identifiers |
+
+Source: [Regulation (EU) 2016/679, consolidated text — EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj).
+
+### Not implemented
+
+Cited previously in a way that overstated the tool. Listed here as the honest gap, and as where
+a rigorous version would come from:
+
+| Source | What it would give the tool | Status |
+|---|---|---|
+| [ENISA, *Methodology for the assessment of severity of personal data breaches* (2013)](https://www.enisa.europa.eu/publications/dbn-severity) | The established European severity method, `SE = DPC × EI + CB` | **Not used.** Severity here is a flat weighting (`Critical 20 / High 12 / Medium 6 / Low 2`) chosen for triage ordering |
+| [NIST SP 800-122](https://csrc.nist.gov/pubs/sp/800/122/final) | PII confidentiality impact levels from six named factors | **Not used.** This tool uses four levels and none of those factors |
+| [ISO/IEC 29100:2011, *Privacy framework*](https://www.iso.org/standard/45123.html) | A standardised PII / sensitive-PII taxonomy | **Not used.** Categories here are GDPR-shaped. Paywalled, and not consulted |
+| [ISO/IEC 27701:2019, *Privacy information management*](https://www.iso.org/standard/71670.html) | A privacy-controls crosswalk | **Not present.** There is no controls crosswalk in this tool |
+| [WP29 Opinion 05/2014 on Anonymisation (WP216)](https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/files/2014/wp216_en.pdf) | Singling out, linkability and inference tests; quasi-identifier combination | **Not used.** No linkability, inference or k-anonymity analysis |
+| [ICO, *What is personal data?*](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/personal-information-what-is-it/what-is-personal-data/) | Practical identifiability guidance | **Not encoded** |
+
+Likewise **Art. 5(1)(c)** (minimisation), **Art. 6** (lawful basis), **Art. 35** (DPIA) and
+**Recital 14** (GDPR does not apply to legal persons) are *discussed* in this README but are
+**not checked by the tool**. Art. 6 appears in the app only as explanatory text.
+
+The 0–100 Risk Score is defined by none of the above. It is internal to this tool.
 
 ## Privacy
 
