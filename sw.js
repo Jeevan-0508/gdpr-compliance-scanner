@@ -1,5 +1,5 @@
-const CACHE = 'gdpr-scanner-v2';
-const ASSETS = ['./gdpr_scanner.html', './manifest.json'];
+const CACHE = 'gdpr-scanner-v3';
+const ASSETS = ['./', './index.html', './gdpr_scanner.html', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
