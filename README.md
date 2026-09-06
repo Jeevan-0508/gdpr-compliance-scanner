@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/jk-brand-banner.png" alt="Jeevan Kumar — Risk. Governance. AI." width="280"></p>
+<p align="center"><img src="assets/jk-brand-banner.png" alt="Jeevan Siddhabhaktula — Risk. Governance. AI." width="280"></p>
 
 <div align="center">
 
@@ -213,6 +213,6 @@ All rights reserved — see [LICENSE](LICENSE). No permission is granted to copy
 
 <div align="center">
 
-Built by **[Jeevan Kumar](https://github.com/Jeevan-0508)** — Amazon Transportation Risk & Fraud Operations, transitioning into AI Governance / AI Risk.
+Built by **[Jeevan Siddhabhaktula](https://github.com/Jeevan-0508)** — Amazon Transportation Risk & Fraud Operations, transitioning into AI Governance / AI Risk.
 
 </div>
